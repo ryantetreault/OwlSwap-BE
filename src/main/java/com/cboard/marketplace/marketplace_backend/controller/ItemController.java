@@ -5,15 +5,12 @@ import com.cboard.marketplace.marketplace_backend.model.Product;
 import com.cboard.marketplace.marketplace_backend.model.Request;
 import com.cboard.marketplace.marketplace_backend.model.Service;
 import com.cboard.marketplace.marketplace_backend.service.ItemService;
+import com.cboard.marketplace.marketplace_common.*;
 
-import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -48,6 +45,24 @@ public class ItemController
 
         //return service.getAllItems();
         return new ResponseEntity<>(service.getAllItems(), HttpStatus.OK);
+    }
+
+    @GetMapping("allDtoItems")
+    public ResponseEntity<List<ItemDto>> getAllDtoItems()
+    {
+        //could potentially throw a runtime exception if cant map an item, consider handling this later?
+        List<ItemDto> items = service.getAllDtoItems();
+
+        //return service.getAllItems();
+        return new ResponseEntity<>(service.getAllDtoItems(), HttpStatus.OK);
+    }
+
+    @PostMapping("add")
+    public ResponseEntity<String> addItem(@RequestBody ItemDto itemDto)
+    {
+        //could potentially throw a runtime exception if cant map an item, consider handling this later?
+        return service.addItem(itemDto);
+
     }
 
 

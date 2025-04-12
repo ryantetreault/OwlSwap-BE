@@ -16,6 +16,7 @@ public abstract class Item
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int itemId;
     private String name;
+    String description;
     private double price;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -35,9 +36,10 @@ public abstract class Item
     public Item() {
     }
 
-    public Item(int itemId, String name, double price, Category category, String releaseDate, boolean available, Location location, String itemType, String image_name, String image_type, byte[] image_date) {
+    public Item(int itemId, String name, String description, double price, Category category, String releaseDate, boolean available, Location location, String itemType, String image_name, String image_type, byte[] image_date) {
         this.itemId = itemId;
         this.name = name;
+        this.description = description;
         this.price = price;
         this.category = category;
         this.releaseDate = releaseDate;
@@ -47,6 +49,14 @@ public abstract class Item
         this.image_name = image_name;
         this.image_type = image_type;
         this.image_date = image_date;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public int getItemId() {
@@ -136,4 +146,5 @@ public abstract class Item
     public void setImage_date(byte[] image_date) {
         this.image_date = image_date;
     }
+
 }
