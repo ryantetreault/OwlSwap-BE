@@ -33,12 +33,11 @@ public class UserController
     }
 
     @GetMapping("/api/profile")
-    public ResponseEntity<User> getProfile(@AuthenticationPrincipal org.springframework.security.core.userdetails.User userDetails) {
-//        // debug
-//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-//        System.out.println("Current authenticated user: " + auth.getName());
+    public ResponseEntity<User> getProfile() {
+        //retrieve authenticated username directly
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        String username = userDetails.getUsername();
+        String username = auth.getName();
         User user = userDao.findByUsername(username).orElseThrow();
         user.setPassword(null);
         return ResponseEntity.ok(user);
