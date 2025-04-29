@@ -156,6 +156,17 @@ CREATE table user_subscriptions
 
 );
 
+CREATE TABLE rating
+(
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    score DOUBLE NOT NULL,
+    user_id INT,
+    CONSTRAINT rating_user_fk FOREIGN KEY (user_id) REFERENCES user(user_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+) AUTO_INCREMENT = 1;
+
+
 
 --
 -- ----------------------------------------------------------------------------------------------------------------------------
@@ -316,5 +327,3 @@ INSERT INTO user_subscriptions (user_id, subscriber_id) VALUES
 (2, 3),  -- Charlie subscribes to Bob
 (3, 1),  -- Alice subscribes to Charlie
 (4, 1);  -- Diana subscribes to Alice
-
-
