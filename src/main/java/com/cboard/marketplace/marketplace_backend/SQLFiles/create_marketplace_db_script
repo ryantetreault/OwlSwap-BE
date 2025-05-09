@@ -188,6 +188,7 @@ BEGIN
 END $$
 DELIMITER ;
 
+
 DELIMITER $$
 CREATE TRIGGER update_archive_user_on_delete
 	BEFORE DELETE ON user
@@ -198,6 +199,7 @@ BEGIN
     WHERE user_id = OLD.user_id;
 END $$
 DELIMITER ;
+
 
 
 
@@ -218,113 +220,3 @@ BEGIN
 END $$
 DELIMITER ;
 
-
-
-
---
--- ----------------------------------------------------------------------------------------------------------------------------
--- TEST INSERTS
-
-
--- 🌍 LOCATIONS
-INSERT INTO location (name, address, latitude, longitude) VALUES
-('Library', '577 Western Ave, Westfield, MA', 42.132788, -72.796107),
-('New Hall', 'Dorm A, Westfield State University', 42.131639, -72.792583),
-('DC', 'Campus Center, Westfield MA', 42.131885, -72.795549),
-('Gym', 'Recreation Center, Westfield MA', 42.133139, -72.796361);
-
--- 🗂️ CATEGORIES
-INSERT INTO category (name) VALUES
-('Electronics'),
-('Textbooks'),
-('Tutoring'),
-('Moving Help'),
-('Furniture');
-
--- 👤 USERS
-INSERT INTO user (first_name, last_name, email, username, average_rating, password) VALUES
-('Alice', 'Smith', 'alice@campus.edu', 'alice123', 3.33, 'passAlice'),
-('Bob', 'Johnson', 'bob@campus.edu', 'bobbyJ', 4.69, 'passBob'),
-('Charlie', 'Lee', 'charlie@campus.edu', 'charlieL', 4.50, 'passCharlie'),
-('Diana', 'Miller', 'diana@campus.edu', 'dianaM', 5.1, 'passDiana');
-
--- 📦 ITEMS (MIXED TYPES)
--- Product: Calculator
-INSERT INTO item (name, description, price, user_id, category_id, available, location_id, item_type, image_name, image_type, image_date)
-VALUES ('TI-84 Calculator', 'Gently used graphing calculator.', 45.00, 1, 1, 0, 1, 'product', 'calc.jpg', 'image/jpeg', NULL);
-
--- Product: Desk Chair
-INSERT INTO item (name, description, price, user_id, category_id, available, location_id, item_type, image_name, image_type, image_date)
-VALUES ('Desk Chair', 'Comfortable ergonomic chair.', 20.00, 2, 5, 0, 2, 'product', 'chair.jpg', 'image/jpeg', NULL);
-
--- Service: Math Tutoring
-INSERT INTO item (name, description, price, user_id, category_id, available, location_id, item_type, image_name, image_type, image_date)
-VALUES ('Math Tutoring', '1-hour session of calculus tutoring.', 25.00, 3, 3, 0, 3, 'service', 'tutor.png', 'image/png', NULL);
-
--- Service: Moving Help
-INSERT INTO item (name, description, price, user_id, category_id, available, location_id, item_type, image_name, image_type, image_date)
-VALUES ('Moving Help', 'Help moving into dorm.', 30.00, 4, 4, 1, 4, 'service', 'moving.jpg', 'image/jpeg', NULL);
-
--- Request: Need Desk
-INSERT INTO item (name, description, price, user_id, category_id, available, location_id, item_type, image_name, image_type, image_date)
-VALUES ('Need a Desk', 'Looking to buy a cheap desk.', 50.00, 1, 5, 1, 1, 'request', 'desk.jpg', 'image/jpeg', NULL);
-
--- Request: Study Group
-INSERT INTO item (name, description, price, user_id, category_id, available, location_id, item_type, image_name, image_type, image_date)
-VALUES ('Study Partner Needed', 'Need help studying for CS exam.', 0.00, 1, 3, 1, 2, 'request', 'study.jpg', 'image/jpeg', NULL);
-
--- 🛠️ PRODUCTS (for product items only)
-INSERT INTO product (item_id, quantity, brand) VALUES
-(1, 1, 'Texas Instruments'),  -- TI-84 Calculator
-(2, 1, 'IKEA');               -- Desk Chair
-
--- 🛠️ SERVICES
-INSERT INTO service (item_id, duration_minutes) VALUES
-(3, 60),  -- Math Tutoring
-(4, 90);  -- Moving Help
-
--- 🛠️ REQUESTS
-INSERT INTO request (item_id, deadline) VALUES
-(5, '2025-04-20'),  -- Need a Desk
-(6, '2025-04-15');  -- Study Group
-
-
-
--- 💸 TRANSACTIONS
-INSERT INTO transaction (buyer_id, seller_id, item_id) VALUES
-(3, 1, 1),  -- Charlie bought calculator from Alice
-(4, 2, 3), -- Diana paid Bob for tutoring
-(1, 2, 2); -- Alice paid Bob for moving help
-
--- 🔔 ITEM SUBSCRIPTIONS
-INSERT INTO item_subscriptions (item_id, user_id) VALUES
-(1, 2),  -- Bob subscribes to calculator
-(2, 3),  -- Charlie subscribes to desk chair
-(3, 1),  -- Alice subscribes to tutoring
-(5, 4);  -- Diana subscribes to desk request
-
--- 🧑‍🤝‍🧑 USER SUBSCRIPTIONS
-INSERT INTO user_subscriptions (user_id, subscriber_id) VALUES
-(1, 2),  -- Bob subscribes to Alice
-(2, 3),  -- Charlie subscribes to Bob
-(3, 1),  -- Alice subscribes to Charlie
-(4, 1);  -- Diana subscribes to Alice
-
-
--- USER RATINGS
--- Alice (3.33 avg)
-INSERT INTO rating (user_id, score) VALUES (1, 3.0);
-INSERT INTO rating (user_id, score) VALUES (1, 3.0);
-INSERT INTO rating (user_id, score) VALUES (1, 4.0);
-
--- Bob (4.69 avg)
-INSERT INTO rating (user_id, score) VALUES (2, 4.5);
-INSERT INTO rating (user_id, score) VALUES (2, 5.0);
-INSERT INTO rating (user_id, score) VALUES (2, 4.58);
-
--- Charlie (4.50 avg)
-INSERT INTO rating (user_id, score) VALUES (3, 4.0);
-INSERT INTO rating (user_id, score) VALUES (3, 5.0);
-
--- Diana (4.9 avg)
-INSERT INTO rating (user_id, score) VALUES (4, 4.9);
