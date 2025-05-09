@@ -1,0 +1,102 @@
+INSERT INTO user (first_name, last_name, email, username, average_rating, password) VALUES ('Richard', 'Weeks', 'richardw@westfield.ma.edu', 'richardw', 2.27, '$2a$10$AU.I0zy6c1pPDh1XCI.VUu.Dvza0PI5ClYwff21MJVHedWrVr4wsu'); -- $2a$10$AU.I0zy6c1pPDh1XCI.VUu.Dvza0PI5ClYwff21MJVHedWrVr4wsu
+INSERT INTO user (first_name, last_name, email, username, average_rating, password) VALUES ('Melissa', 'Carter', 'melissac@westfield.ma.edu', 'melissac', 4.26, '$2a$10$Yt9lWFkkKQv5mrVjaUTXLuwRgEh7HTVkSE0e6lrXR0F9pqDkIFw5O'); -- $2a$10$Yt9lWFkkKQv5mrVjaUTXLuwRgEh7HTVkSE0e6lrXR0F9pqDkIFw5O
+INSERT INTO user (first_name, last_name, email, username, average_rating, password) VALUES ('Tyler', 'Perry', 'tylerp@westfield.ma.edu', 'tylerp', 2.24, '$2a$10$iH0Gc4wZU/SeafU2k/apLug1tUKGdDdQMPveDP9AEzJzsvWcNIDQO');--  $2a$10$iH0Gc4wZU/SeafU2k/apLug1tUKGdDdQMPveDP9AEzJzsvWcNIDQO
+INSERT INTO user (first_name, last_name, email, username, average_rating, password) VALUES ('Marissa', 'Lewis', 'marissal@westfield.ma.edu', 'marissal', 3.18, '$2a$10$pSfgDE3HEE1QKspF7n2EYedj2iXAQ7OR.HGvEbVPcuUXCTYoNlduW'); -- $2a$10$pSfgDE3HEE1QKspF7n2EYedj2iXAQ7OR.HGvEbVPcuUXCTYoNlduW
+INSERT INTO user (first_name, last_name, email, username, average_rating, password) VALUES ('Jon', 'Gutierrez', 'jong@westfield.ma.edu', 'jong', 1.0, '$2a$10$IPsZRYrKZYbnUY1iewZcMO8Kh6VFUCIVZvrlEdGW.G5auP5Jx3kcW'); -- $2a$10$IPsZRYrKZYbnUY1iewZcMO8Kh6VFUCIVZvrlEdGW.G5auP5Jx3kcW
+INSERT INTO user (first_name, last_name, email, username, average_rating, password) VALUES ('Nicole', 'Leblanc', 'nicolel@westfield.ma.edu', 'nicolel', 2.44, '$2a$10$jwam6UaVq1ZhFo/nZ08gsuj4ocQ3AV8z6vN.JWl8bKdXw7uJ9WVnm');--  $2a$10$jwam6UaVq1ZhFo/nZ08gsuj4ocQ3AV8z6vN.JWl8bKdXw7uJ9WVnm
+INSERT INTO user (first_name, last_name, email, username, average_rating, password) VALUES ('James', 'Ramos', 'jamesr@westfield.ma.edu', 'jamesr', 2.63, '$2a$10$xZwPIr/VdP3u/GI32LSoI.VVhr2gYJ4JDU8aQG6JtDhQCsMyrdU0O');-- $2a$10$xZwPIr/VdP3u/GI32LSoI.VVhr2gYJ4JDU8aQG6JtDhQCsMyrdU0O
+INSERT INTO user (first_name, last_name, email, username, average_rating, password) VALUES ('Todd', 'Wells', 'toddw@westfield.ma.edu', 'toddw', 3.75, '$2a$10$9rT2mHbURJi5ytJnY4HLHu/2YxxUmf/peAmiF19lMAeEh9RO/BT26'); -- $2a$10$9rT2mHbURJi5ytJnY4HLHu/2YxxUmf/peAmiF19lMAeEh9RO/BT26
+INSERT INTO user (first_name, last_name, email, username, average_rating, password) VALUES ('Jack', 'Hernandez', 'jackh@westfield.ma.edu', 'jackh', 1.82, '$2a$10$yOxTKzjrABFBrG2zoH0tL.OGNO5XrjzP79cZr6jGO9JhUz5TQO.DG');-- $2a$10$yOxTKzjrABFBrG2zoH0tL.OGNO5XrjzP79cZr6jGO9JhUz5TQO.DG
+INSERT INTO user (first_name, last_name, email, username, average_rating, password) VALUES ('Kelly', 'Curry', 'kellyc@westfield.ma.edu', 'kellyc', 4.32, '$2a$10$xr1iHTJcLi/5EpD3aAWQ8..29fwJ05jwZ9VImK0f.ADJrne19KPt.'); -- $2a$10$xr1iHTJcLi/5EpD3aAWQ8..29fwJ05jwZ9VImK0f.ADJrne19KPt.
+
+INSERT INTO location (name, address, latitude, longitude) VALUES
+('Library', '577 Western Ave, Westfield, MA', 42.132788, -72.796107),
+('New Hall', 'Dorm A, Westfield State University', 42.131639, -72.792583),
+('DC', 'Campus Center, Westfield MA', 42.131885, -72.795549),
+('Gym', 'Recreation Center, Westfield MA', 42.133139, -72.796361);
+
+
+INSERT INTO category (name) VALUES
+('Electronics'),
+('Textbooks'),
+('Tutoring'),
+('Moving Help'),
+('Furniture');
+
+
+-- Product: Calculator
+INSERT INTO item (name, description, price, user_id, category_id, available, location_id, item_type, image_name, image_type)
+VALUES ('Graphing Calculator', 'TI-84 Plus, lightly used', 60.00, 1, 1, b'1', 1, 'product', 'calc.jpg', 'image/jpeg');
+INSERT INTO product (item_id, quantity, brand) VALUES (1, 1, 'Texas Instruments');
+
+-- Product: Dorm Fan
+INSERT INTO item (name, description, price, user_id, category_id, available, location_id, item_type, image_name, image_type)
+VALUES ('Dorm Fan', 'Small desk fan, perfect for summer dorms', 20.00, 2, 5, b'1', 2, 'product', 'fan.jpg', 'image/jpeg');
+INSERT INTO product (item_id, quantity, brand) VALUES (2, 1, 'Lasko');
+
+
+-- Service: Math Tutoring
+INSERT INTO item (name, description, price, user_id, category_id, available, location_id, item_type, image_name, image_type)
+VALUES ('Math Tutoring', '1-hour session in calculus', 30.00, 3, 3, b'1', 3, 'service', 'math.jpg', 'image/jpeg');
+INSERT INTO service (item_id, duration_minutes) VALUES (3, 60);
+
+-- Service: Moving Help
+INSERT INTO item (name, description, price, user_id, category_id, available, location_id, item_type, image_name, image_type)
+VALUES ('Move-Out Help', 'Need help moving out of dorm? I got you.', 45.00, 4, 4, b'1', 4, 'service', 'move.jpg', 'image/jpeg');
+INSERT INTO service (item_id, duration_minutes) VALUES (4, 90);
+
+-- Request: Looking for Microeconomics Textbook
+INSERT INTO item (name, description, price, user_id, category_id, available, location_id, item_type, image_name, image_type)
+VALUES ('Need Econ Textbook', 'Microeconomics, 4th Edition', 30.00, 5, 2, b'1', 1, 'request', 'book.jpg', 'image/jpeg');
+INSERT INTO request (item_id, deadline) VALUES (5, '2025-06-01');
+
+-- Request: Need Furniture
+INSERT INTO item (name, description, price, user_id, category_id, available, location_id, item_type, image_name, image_type)
+VALUES ('Looking for small desk', 'Any functional desk under 50 bucks', 50.00, 6, 5, b'1', 2, 'request', 'desk.jpg', 'image/jpeg');
+INSERT INTO request (item_id, deadline) VALUES (6, '2025-05-20');
+
+
+INSERT INTO item (item_id, name, description, price, user_id, category_id, available, location_id, item_type, image_name, image_type) VALUES
+(7, 'Laptop', 'Laptop in great condition, barely used.', 90.37, 1, 1, b'1', 3, 'product', 'product_7.jpg', 'image/jpeg'),
+(8, 'Resume Review', 'Offering resume review for students.', 69.04, 7, 3, b'1', 1, 'service', 'service_8.jpg', 'image/jpeg'),
+(9, 'Dog Walking', 'Offering dog walking for students.', 157.91, 6, 4, b'1', 3, 'service', 'service_9.jpg', 'image/jpeg'),
+(10, 'Monitor', 'Monitor in great condition, barely used.', 105.96, 5, 2, b'1', 3, 'product', 'product_10.jpg', 'image/jpeg'),
+(11, 'Want Used Bike', 'Student request: want used bike.', 145.19, 10, 3, b'1', 1, 'request', 'request_11.jpg', 'image/jpeg'),
+(12, 'Looking for Printer', 'Student request: looking for printer.', 149.38, 10, 2, b'1', 1, 'request', 'request_12.jpg', 'image/jpeg'),
+(13, 'Monitor', 'Monitor in great condition, barely used.', 162.35, 5, 3, b'1', 3, 'product', 'product_13.jpg', 'image/jpeg'),
+(14, 'Seeking Lamp', 'Student request: seeking lamp.', 127.08, 10, 2, b'1', 2, 'request', 'request_14.jpg', 'image/jpeg'),
+(15, 'Need Help with Moving', 'Student request: need help with moving.', 69.96, 6, 4, b'1', 1, 'request', 'request_15.jpg', 'image/jpeg'),
+(16, 'Resume Review', 'Offering resume review for students.', 45.09, 7, 5, b'1', 4, 'service', 'service_16.jpg', 'image/jpeg');
+
+
+INSERT INTO product (item_id, quantity, brand) VALUES
+(7, 5, 'Sony'),
+(10, 1, 'Philips'),
+(13, 1, 'AmazonBasics');
+
+INSERT INTO service (item_id, duration_minutes) VALUES
+(8, 120),
+(9, 120),
+(16, 30);
+
+
+INSERT INTO request (item_id, deadline) VALUES
+(11, '2025-05-22'),
+(12, '2025-05-15'),
+(14, '2025-05-17'),
+(15, '2025-06-06');
+
+
+
+INSERT INTO transaction (buyer_id, seller_id, item_id) VALUES (3, 4, 2);
+INSERT INTO transaction (buyer_id, seller_id, item_id) VALUES (7, 8, 5);
+INSERT INTO transaction (buyer_id, seller_id, item_id) VALUES (2, 1, 1);
+INSERT INTO transaction (buyer_id, seller_id, item_id) VALUES (6, 9, 3);
+INSERT INTO transaction (buyer_id, seller_id, item_id) VALUES (10, 2, 6);
+
+
+INSERT INTO rating (score, user_id) VALUES (4.5, 1);
+INSERT INTO rating (score, user_id) VALUES (3.2, 3);
+INSERT INTO rating (score, user_id) VALUES (5.0, 5);
+INSERT INTO rating (score, user_id) VALUES (2.8, 7);
+INSERT INTO rating (score, user_id) VALUES (4.0, 9);
