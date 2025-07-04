@@ -3,7 +3,6 @@ package com.cboard.marketplace.marketplace_backend.service;
 import com.cboard.marketplace.marketplace_backend.dao.UserDao;
 import com.cboard.marketplace.marketplace_backend.model.User;
 import com.cboard.marketplace.marketplace_backend.model.UserArchive;
-import com.cboard.marketplace.marketplace_common.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

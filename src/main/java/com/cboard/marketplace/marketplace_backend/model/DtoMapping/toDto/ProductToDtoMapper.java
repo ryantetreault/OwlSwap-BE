@@ -2,7 +2,7 @@ package com.cboard.marketplace.marketplace_backend.model.DtoMapping.toDto;
 
 
 import com.cboard.marketplace.marketplace_backend.model.*;
-import com.cboard.marketplace.marketplace_common.*;
+import com.cboard.marketplace.marketplace_backend.model.Dto.*;
 import org.springframework.stereotype.Component;
 
 @Component

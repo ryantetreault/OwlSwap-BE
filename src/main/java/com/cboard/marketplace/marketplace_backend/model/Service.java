@@ -1,7 +1,6 @@
 package com.cboard.marketplace.marketplace_backend.model;
 
 import jakarta.persistence.Entity;
-import com.cboard.marketplace.marketplace_common.*;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

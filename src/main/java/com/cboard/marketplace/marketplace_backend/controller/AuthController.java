@@ -1,7 +1,8 @@
 package com.cboard.marketplace.marketplace_backend.controller;
 
-import com.cboard.marketplace.marketplace_common.dto.LoginRequest;
-import com.cboard.marketplace.marketplace_common.dto.SignupRequest;
+
+import com.cboard.marketplace.marketplace_backend.model.Dto.LoginRequest;
+import com.cboard.marketplace.marketplace_backend.model.Dto.SignupRequest;
 import com.cboard.marketplace.marketplace_backend.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

@@ -2,7 +2,7 @@ package com.cboard.marketplace.marketplace_backend.service;
 
 import com.cboard.marketplace.marketplace_backend.dao.CategoryDao;
 import com.cboard.marketplace.marketplace_backend.model.Category;
-import com.cboard.marketplace.marketplace_common.CategoryDto;
+import com.cboard.marketplace.marketplace_backend.model.Dto.CategoryDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

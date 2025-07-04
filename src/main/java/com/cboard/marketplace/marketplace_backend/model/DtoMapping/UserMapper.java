@@ -1,7 +1,7 @@
 package com.cboard.marketplace.marketplace_backend.model.DtoMapping;
 
+import com.cboard.marketplace.marketplace_backend.model.Dto.UserDto;
 import com.cboard.marketplace.marketplace_backend.model.UserArchive;
-import com.cboard.marketplace.marketplace_common.UserDto;
 import org.springframework.stereotype.Component;
 
 @Component

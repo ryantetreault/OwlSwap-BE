@@ -2,10 +2,10 @@ package com.cboard.marketplace.marketplace_backend.service;
 
 import com.cboard.marketplace.marketplace_backend.dao.ItemDao;
 
+import com.cboard.marketplace.marketplace_backend.model.Dto.ItemDto;
 import com.cboard.marketplace.marketplace_backend.model.DtoMapping.fromDto.DtoToItemFactory;
 import com.cboard.marketplace.marketplace_backend.model.DtoMapping.toDto.ItemToDtoFactory;
 import com.cboard.marketplace.marketplace_backend.model.Item;
-import com.cboard.marketplace.marketplace_common.ItemDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
