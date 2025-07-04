@@ -1,8 +1,7 @@
 package com.cboard.marketplace.marketplace_backend.controller;
 
-import com.cboard.marketplace.marketplace_backend.model.UserItems;
+import com.cboard.marketplace.marketplace_backend.model.Dto.ItemDto;
 import com.cboard.marketplace.marketplace_backend.service.UserItemsService;
-import com.cboard.marketplace.marketplace_common.ItemDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

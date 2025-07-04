@@ -2,10 +2,9 @@ package com.cboard.marketplace.marketplace_backend.controller;
 
 import com.cboard.marketplace.marketplace_backend.dao.UserDao;
 import com.cboard.marketplace.marketplace_backend.model.*;
+import com.cboard.marketplace.marketplace_backend.model.Dto.UserDto;
 import com.cboard.marketplace.marketplace_backend.service.RatingService;
 import com.cboard.marketplace.marketplace_backend.service.UserService;
-import com.cboard.marketplace.marketplace_common.dto.UserDto;
-import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;

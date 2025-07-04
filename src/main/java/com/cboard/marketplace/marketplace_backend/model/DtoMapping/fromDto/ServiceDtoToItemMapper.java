@@ -1,10 +1,10 @@
 package com.cboard.marketplace.marketplace_backend.model.DtoMapping.fromDto;
 
 import com.cboard.marketplace.marketplace_backend.model.*;
+import com.cboard.marketplace.marketplace_backend.model.Dto.ServiceDto;
 import com.cboard.marketplace.marketplace_backend.service.CategoryService;
 import com.cboard.marketplace.marketplace_backend.service.LocationService;
 import com.cboard.marketplace.marketplace_backend.service.UserService;
-import com.cboard.marketplace.marketplace_common.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

@@ -1,7 +1,5 @@
 package com.cboard.marketplace.marketplace_backend.model;
 
-import com.cboard.marketplace.marketplace_common.*;
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 

@@ -1,8 +1,8 @@
 package com.cboard.marketplace.marketplace_backend.model.DtoMapping;
 
+import com.cboard.marketplace.marketplace_backend.model.Dto.TransactionDto;
 import com.cboard.marketplace.marketplace_backend.model.DtoMapping.toDto.ItemToDtoFactory;
 import com.cboard.marketplace.marketplace_backend.model.Transaction;
-import com.cboard.marketplace.marketplace_common.TransactionDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Component;

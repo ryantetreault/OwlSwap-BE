@@ -2,7 +2,7 @@ package com.cboard.marketplace.marketplace_backend.model.DtoMapping.fromDto;
 
 import com.cboard.marketplace.marketplace_backend.model.DtoMapping.toDto.ItemToDtoMapper;
 import com.cboard.marketplace.marketplace_backend.model.Item;
-import com.cboard.marketplace.marketplace_common.ItemDto;
+import com.cboard.marketplace.marketplace_backend.model.Dto.ItemDto;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;

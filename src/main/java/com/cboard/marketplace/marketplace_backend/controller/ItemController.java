@@ -1,22 +1,18 @@
 package com.cboard.marketplace.marketplace_backend.controller;
 
-import com.cboard.marketplace.marketplace_backend.model.*;
+
+import com.cboard.marketplace.marketplace_backend.model.Dto.CategoryDto;
+import com.cboard.marketplace.marketplace_backend.model.Dto.ItemDto;
 import com.cboard.marketplace.marketplace_backend.service.CategoryService;
 import com.cboard.marketplace.marketplace_backend.service.ItemService;
-import com.cboard.marketplace.marketplace_common.*;
-
-import com.cboard.marketplace.marketplace_common.CategoryDto;
 import jakarta.validation.*;
-import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("item")
