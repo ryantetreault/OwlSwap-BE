@@ -7,6 +7,9 @@ import com.cboard.marketplace.marketplace_backend.service.CategoryService;
 import com.cboard.marketplace.marketplace_backend.service.ItemService;
 import jakarta.validation.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,10 +29,16 @@ public class ItemController
 
     //returns all available items
     @GetMapping("all")
-    public ResponseEntity<List<ItemDto>> getAllItems()
+    public ResponseEntity<Page<ItemDto>> getAllItems(@PageableDefault(size=5) Pageable pageable)
     {
         //could potentially throw a runtime exception if cant map an item, consider handling this later?
-        return service.getAllItems();
+        return service.getAllItems(pageable);
+    }
+
+    @GetMapping("search")
+    public ResponseEntity<Page<ItemDto>> searchItems(@RequestParam String keyword, @PageableDefault(size=20) Pageable pageable)
+    {
+        return service.searchItems(keyword, pageable);
     }
 
     @GetMapping("{id}")

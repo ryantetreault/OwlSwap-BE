@@ -7,6 +7,9 @@ import com.cboard.marketplace.marketplace_backend.model.DtoMapping.fromDto.DtoTo
 import com.cboard.marketplace.marketplace_backend.model.DtoMapping.toDto.ItemToDtoFactory;
 import com.cboard.marketplace.marketplace_backend.model.Item;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -22,6 +25,8 @@ public class ItemService
 {
     @Autowired
     ItemDao dao;
+    @Autowired
+    UserService userService;
     private final ItemToDtoFactory toDtoFactory;
     private final DtoToItemFactory fromDtoFactory;
 
@@ -33,9 +38,26 @@ public class ItemService
         this.fromDtoFactory = fromDtoFactory;
     }
 
-    public ResponseEntity<List<ItemDto>> getAllItems()
+    public ResponseEntity<Page<ItemDto>> getAllItems(Pageable pageable)
     {
-        List<ItemDto> items = dao.findAll().stream()
+        Integer userId = userService.getProfile().getBody().getUserId();
+        Page<Item> items = dao.findByAvailableTrueAndUserUserIdNot(userId, pageable);
+
+        Page<ItemDto> dtoPage = items
+                .map(item -> {
+                            try
+                            {
+                                return toDtoFactory.toDto(item);
+                            }
+                            catch(IllegalAccessException e)
+                            {
+                                e.printStackTrace();
+                                throw new RuntimeException("Error converting item to DTO: " + item, e);
+                            }
+                        }
+                );
+
+        /*List<ItemDto> items = dao.findAll().stream()
                 .filter(Item::isAvailable)
                 .map(item -> {
                     try
@@ -49,9 +71,9 @@ public class ItemService
                     }
                         }
                 )
-                .toList();
+                .toList();*/
 
-        return new ResponseEntity<>(items, HttpStatus.OK);
+        return new ResponseEntity<>(dtoPage, HttpStatus.OK);
 
     }
 
@@ -219,5 +241,33 @@ public class ItemService
             e.printStackTrace();
             return new ResponseEntity<>("Illegal access error", HttpStatus.BAD_REQUEST);
         }
+    }
+
+    public ResponseEntity<Page<ItemDto>> searchItems(String keyword, Pageable pageable)
+    {
+        Integer userId = userService.getProfile().getBody().getUserId();
+
+        Page<Item> items = dao.findByUserUserIdNotAndNameContainingIgnoreCaseAndAvailableTrueOrUserUserIdNotAndDescriptionContainingIgnoreCaseAndAvailableTrue(userId, keyword, userId, keyword, pageable);
+
+        if(items.isEmpty())
+            return new ResponseEntity<>(Page.empty(pageable), HttpStatus.OK);
+
+        Page<ItemDto> dtoPage = items
+                .map(item -> {
+                            try
+                            {
+
+                                return toDtoFactory.toDto(item);
+                            }
+                            catch(IllegalAccessException e)
+                            {
+                                e.printStackTrace();
+                                throw new RuntimeException("Error converting item to DTO: " + item, e);
+                            }
+                        }
+                )
+                ;
+
+        return new ResponseEntity<>(dtoPage, HttpStatus.OK);
     }
 }
