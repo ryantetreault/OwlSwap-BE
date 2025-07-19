@@ -21,8 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class ItemService
-{
+public class ItemService {
     @Autowired
     ItemDao dao;
     @Autowired
@@ -31,26 +30,21 @@ public class ItemService
     private final DtoToItemFactory fromDtoFactory;
 
     //this automatically adds all the different dto mappers through injection
-    public ItemService(ItemDao dao, ItemToDtoFactory toDtoFactory, DtoToItemFactory fromDtoFactory)
-    {
+    public ItemService(ItemDao dao, ItemToDtoFactory toDtoFactory, DtoToItemFactory fromDtoFactory) {
         this.dao = dao;
         this.toDtoFactory = toDtoFactory;
         this.fromDtoFactory = fromDtoFactory;
     }
 
-    public ResponseEntity<Page<ItemDto>> getAllItems(Pageable pageable)
-    {
+    public ResponseEntity<Page<ItemDto>> getAllItems(Pageable pageable) {
         Integer userId = userService.getProfile().getBody().getUserId();
         Page<Item> items = dao.findByAvailableTrueAndUserUserIdNot(userId, pageable);
 
         Page<ItemDto> dtoPage = items
                 .map(item -> {
-                            try
-                            {
+                            try {
                                 return toDtoFactory.toDto(item);
-                            }
-                            catch(IllegalAccessException e)
-                            {
+                            } catch (IllegalAccessException e) {
                                 e.printStackTrace();
                                 throw new RuntimeException("Error converting item to DTO: " + item, e);
                             }
@@ -78,10 +72,8 @@ public class ItemService
     }
 
     //returns an item from its id if it exists and it is available
-    public ResponseEntity<?> getItem(int itemId)
-    {
-        try
-        {
+    public ResponseEntity<?> getItem(int itemId) {
+        try {
             Item item = dao.findByItemId(itemId);
 
             if (!item.isAvailable())
@@ -89,55 +81,42 @@ public class ItemService
 
             ItemDto dto = toDtoFactory.toDto(item);
             return new ResponseEntity<>(dto, HttpStatus.OK);
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>("Error occurred", HttpStatus.BAD_REQUEST);
         }
     }
 
 
-    public ResponseEntity<List<ItemDto>> getItemByOwner(int userId)
-    {
-        try
-        {
-             List<ItemDto> items = dao.findAllByUser_UserId(userId).stream().filter(Item::isAvailable)
+    public ResponseEntity<List<ItemDto>> getItemByOwner(int userId) {
+        try {
+            List<ItemDto> items = dao.findAllByUser_UserId(userId).stream().filter(Item::isAvailable)
                     .map(item -> {
-                    try
-                    {
-                        return toDtoFactory.toDto(item);
-                    }
-                    catch(IllegalAccessException e)
-                    {
-                        e.printStackTrace();
-                        throw new RuntimeException("Error converting item to DTO: " + item, e);
-                    }
-                }
-        )
-                .toList();
+                                try {
+                                    return toDtoFactory.toDto(item);
+                                } catch (IllegalAccessException e) {
+                                    e.printStackTrace();
+                                    throw new RuntimeException("Error converting item to DTO: " + item, e);
+                                }
+                            }
+                    )
+                    .toList();
             return new ResponseEntity<>(items, HttpStatus.OK);
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.BAD_REQUEST);
 
     }
 
-    public ResponseEntity<String> addItem(ItemDto itemDto)
-    {
-        try
-        {
+    public ResponseEntity<String> addItem(ItemDto itemDto) {
+        try {
             Item item = fromDtoFactory.fromDto(itemDto);
-            if(item.getReleaseDate() == null)
+            if (item.getReleaseDate() == null)
                 item.setReleaseDate(String.valueOf(LocalDate.now()));
             dao.save(item);
             return new ResponseEntity<>("Success", HttpStatus.CREATED);
-        }
-        catch(IllegalAccessException e)
-        {
+        } catch (IllegalAccessException e) {
             e.printStackTrace();
             throw new RuntimeException("Error converting DTO to item: " + itemDto, e);
         }
@@ -145,47 +124,40 @@ public class ItemService
     }
 
 
-    public ResponseEntity<String> updateItem(ItemDto dto)
-    {
+    public ResponseEntity<String> updateItem(ItemDto dto) {
         if (!dao.existsById(dto.getItemId()))
             return new ResponseEntity<>("Item not found", HttpStatus.NOT_FOUND);
 
-        try
-        {
+        try {
             Item item = fromDtoFactory.fromDto(dto);
             item.setItemId(dto.getItemId());
 
             dao.save(item);
             return new ResponseEntity<>("Item updated", HttpStatus.OK);
-        }
-        catch(IllegalAccessException e)
-        {
+        } catch (IllegalAccessException e) {
             e.printStackTrace();
             return new ResponseEntity<>("Illegal access error", HttpStatus.BAD_REQUEST);
         }
 
     }
 
-    public ResponseEntity<String> softDeleteItem(int itemId)
-    {
-        if(!dao.existsById(itemId))
+    public ResponseEntity<String> softDeleteItem(int itemId) {
+        if (!dao.existsById(itemId))
             return new ResponseEntity<>("Item not found", HttpStatus.NOT_FOUND);
 
         dao.softDeleteItem(itemId);
         return new ResponseEntity<>("Item deleted", HttpStatus.OK);
     }
 
-    public ResponseEntity<String> deleteItem(int itemId)
-    {
-        if(!dao.existsById(itemId))
+    public ResponseEntity<String> deleteItem(int itemId) {
+        if (!dao.existsById(itemId))
             return new ResponseEntity<>("Item not found", HttpStatus.NOT_FOUND);
 
         dao.delete(dao.findByItemId(itemId));
         return new ResponseEntity<>("Item deleted", HttpStatus.OK);
     }
 
-    public ResponseEntity<String> uploadImage(int itemId, MultipartFile file) throws IOException
-    {
+    public ResponseEntity<String> uploadImage(int itemId, MultipartFile file) throws IOException {
         Item item = dao.findById(itemId)
                 .orElseThrow(() -> new RuntimeException("Item not found"));
 
@@ -197,12 +169,10 @@ public class ItemService
         return ResponseEntity.ok("Image uploaded");
     }
 
-    public ResponseEntity<String> addItemWithImage(ItemDto dto, MultipartFile image) throws IOException
-    {
-        try
-        {
+    public ResponseEntity<String> addItemWithImage(ItemDto dto, MultipartFile image) throws IOException {
+        try {
             Item item = fromDtoFactory.fromDto(dto);
-            if(item.getReleaseDate() == null)
+            if (item.getReleaseDate() == null)
                 item.setReleaseDate(String.valueOf(LocalDate.now()));
 
             item.setImage_name(image.getOriginalFilename());
@@ -211,21 +181,17 @@ public class ItemService
             dao.save(item);
 
             return new ResponseEntity<>("Item created with image!", HttpStatus.CREATED);
-        }
-        catch(IllegalAccessException e)
-        {
+        } catch (IllegalAccessException e) {
             e.printStackTrace();
             throw new RuntimeException("Error converting DTO to item: " + dto, e);
         }
     }
 
-    public ResponseEntity<String> updateItemWithImage(ItemDto dto, MultipartFile image) throws IOException
-    {
+    public ResponseEntity<String> updateItemWithImage(ItemDto dto, MultipartFile image) throws IOException {
         if (!dao.existsById(dto.getItemId()))
             return new ResponseEntity<>("Item not found", HttpStatus.NOT_FOUND);
 
-        try
-        {
+        try {
             Item item = fromDtoFactory.fromDto(dto);
             item.setItemId(dto.getItemId());
 
@@ -235,19 +201,56 @@ public class ItemService
 
             dao.save(item);
             return new ResponseEntity<>("Item updated with image", HttpStatus.OK);
-        }
-        catch(IllegalAccessException e)
-        {
+        } catch (IllegalAccessException e) {
             e.printStackTrace();
             return new ResponseEntity<>("Illegal access error", HttpStatus.BAD_REQUEST);
         }
     }
 
-    public ResponseEntity<Page<ItemDto>> searchItems(String keyword, Pageable pageable)
+    public ResponseEntity<Page<ItemDto>> searchItems(String keyword, String category, Pageable pageable) {
+        Integer userId = userService.getProfile().getBody().getUserId();
+        Page<Item> items;
+
+        if (keyword != null && category != null) {
+            //items = dao.findByUserUserIdNotAndAvailableTrueAndNameContainingIgnoreCaseOrUserUserIdNotAndAvailableTrueAndDescriptionContainingIgnoreCaseOrUserUserIdNotAndAvailableTrueAndCategoryName(
+                    //userId, keyword, userId, keyword, userId, category, pageable);
+            items = dao.findByUserUserIdNotAndAvailableTrueAndNameContainingIgnoreCaseAndCategoryNameOrUserUserIdNotAndAvailableTrueAndDescriptionContainingIgnoreCaseAndCategoryName(
+                    userId, keyword, category, userId, keyword, category, pageable);
+
+        } else if (keyword != null) {
+            items = dao.findByUserUserIdNotAndNameContainingIgnoreCaseAndAvailableTrueOrUserUserIdNotAndDescriptionContainingIgnoreCaseAndAvailableTrue(userId, keyword, userId, keyword, pageable);
+        } else if (category != null) {
+            items = dao.findByCategoryNameAndAvailableTrueAndUserUserIdNot(category, userId, pageable);
+        } else {
+            items = dao.findByAvailableTrueAndUserUserIdNot(userId, pageable);
+        }
+
+        if (items.isEmpty())
+            return new ResponseEntity<>(Page.empty(pageable), HttpStatus.OK);
+
+        Page<ItemDto> dtoPage = items
+                .map(item -> {
+                            try {
+
+                                return toDtoFactory.toDto(item);
+                            } catch (IllegalAccessException e) {
+                                e.printStackTrace();
+                                throw new RuntimeException("Error converting item to DTO: " + item, e);
+                            }
+                        }
+                );
+
+        return new ResponseEntity<>(dtoPage, HttpStatus.OK);
+    }
+}
+
+/*
+
+    public ResponseEntity<Page<ItemDto>> itemsByCat(String category, Pageable pageable)
     {
         Integer userId = userService.getProfile().getBody().getUserId();
 
-        Page<Item> items = dao.findByUserUserIdNotAndNameContainingIgnoreCaseAndAvailableTrueOrUserUserIdNotAndDescriptionContainingIgnoreCaseAndAvailableTrue(userId, keyword, userId, keyword, pageable);
+        Page<Item> items = dao.findByCategoryNameAndAvailableTrueAndUserUserIdNot(category, userId, pageable);
 
         if(items.isEmpty())
             return new ResponseEntity<>(Page.empty(pageable), HttpStatus.OK);
@@ -271,3 +274,4 @@ public class ItemService
         return new ResponseEntity<>(dtoPage, HttpStatus.OK);
     }
 }
+*/

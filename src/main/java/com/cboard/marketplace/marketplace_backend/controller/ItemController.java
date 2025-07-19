@@ -29,17 +29,31 @@ public class ItemController
 
     //returns all available items
     @GetMapping("all")
-    public ResponseEntity<Page<ItemDto>> getAllItems(@PageableDefault(size=5) Pageable pageable)
+    public ResponseEntity<Page<ItemDto>> getAllItems(@PageableDefault(size=6) Pageable pageable)
     {
         //could potentially throw a runtime exception if cant map an item, consider handling this later?
         return service.getAllItems(pageable);
     }
 
     @GetMapping("search")
-    public ResponseEntity<Page<ItemDto>> searchItems(@RequestParam String keyword, @PageableDefault(size=20) Pageable pageable)
+    public ResponseEntity<Page<ItemDto>> searchItems(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String category,
+            @PageableDefault(size=6) Pageable pageable)
+    {
+        return service.searchItems(keyword, category, pageable);
+    }
+
+/*    @GetMapping("search")
+    public ResponseEntity<Page<ItemDto>> searchItems(@RequestParam String keyword, @PageableDefault(size=6) Pageable pageable)
     {
         return service.searchItems(keyword, pageable);
     }
+    @GetMapping("category")
+    public ResponseEntity<Page<ItemDto>> itemsByCat(@RequestParam String category, @PageableDefault(size=6) Pageable pageable)
+    {
+        return service.itemsByCat(category, pageable);
+    }*/
 
     @GetMapping("{id}")
     public ResponseEntity<?> getItem(@PathVariable("id") int itemId)
