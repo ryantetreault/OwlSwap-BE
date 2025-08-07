@@ -23,6 +23,7 @@ public class ProductToDtoMapper implements ItemToDtoMapper<Product>
                 p.getReleaseDate(),
                 p.isAvailable(),
                 (p.getLocation() != null) ? p.getLocation().getName() : null,
+                (p.getLocation() != null) ? p.getLocation().getLocationId() : null,
                 p.getItemType(),
                 p.getImage_name(),
                 p.getImage_type(),

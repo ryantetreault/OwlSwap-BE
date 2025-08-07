@@ -3,6 +3,7 @@ package com.cboard.marketplace.marketplace_backend.controller;
 
 import com.cboard.marketplace.marketplace_backend.model.Dto.CategoryDto;
 import com.cboard.marketplace.marketplace_backend.model.Dto.ItemDto;
+import com.cboard.marketplace.marketplace_backend.model.Dto.ItemMetadata.ItemTypeSchema;
 import com.cboard.marketplace.marketplace_backend.service.CategoryService;
 import com.cboard.marketplace.marketplace_backend.service.ItemService;
 import jakarta.validation.*;
@@ -11,16 +12,25 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("item")
+@Validated
 public class ItemController
 {
+    @Autowired
+    private Validator validator;
+
     @Autowired
     ItemService service;
 
@@ -115,9 +125,25 @@ public class ItemController
 
 
     //upload image and item at same time
-    @PostMapping("add/with-image")
-    public ResponseEntity<String> addItemWithImage(@RequestPart("item") ItemDto dto, @RequestPart("image") MultipartFile image)
+    @PostMapping(
+            value = "add/with-image",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ResponseEntity<?> addItemWithImage(
+            @RequestPart("item") @Valid ItemDto dto,
+            @RequestPart("image") MultipartFile image)
     {
+        Set<ConstraintViolation<ItemDto>> violations = validator.validate(dto);
+        if (!violations.isEmpty()) {
+            Map<String, String> errors = violations.stream()
+                    .collect(Collectors.toMap(
+                            v -> v.getPropertyPath().toString(),
+                            ConstraintViolation::getMessage,
+                            (a,b)->a
+                    ));
+            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        }
+
         try
         {
             return service.addItemWithImage(dto, image);
@@ -127,6 +153,11 @@ public class ItemController
             e.printStackTrace();
             return new ResponseEntity<>("Error", HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @GetMapping("schema")
+    public ResponseEntity<List<ItemTypeSchema>> getItemScehmas(){
+        return service.getAllschemas();
     }
 
 

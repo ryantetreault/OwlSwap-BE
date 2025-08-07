@@ -13,10 +13,16 @@ public class ServiceDto extends ItemDto
     public ServiceDto() {
     }
 
-    public ServiceDto(int itemId, String name, String description, Double price, int userId, String category, String releaseDate, boolean available, String location, String itemType, String image_name, String image_type, byte[] image_date, Integer durationMinutes)
+    public ServiceDto(int itemId, String name, String description, Double price, int userId, String category, String releaseDate, boolean available, String location, Integer locationId, String itemType, String image_name, String image_type, byte[] image_date, Integer durationMinutes)
     {
-        super(itemId, name, description, price, userId, category, releaseDate, available, location, itemType, image_name, image_type, image_date);
+        super(itemId, name, description, price, userId, category, releaseDate, available, location, locationId, itemType, image_name, image_type, image_date);
         this.durationMinutes = durationMinutes;
+    }
+
+    @Override
+    public String getSimpleName()
+    {
+        return "service";
     }
 
     @Override

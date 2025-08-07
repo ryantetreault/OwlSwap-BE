@@ -20,6 +20,7 @@ public class RequestToDtoMapper implements ItemToDtoMapper<Request>
                 r.getReleaseDate(),
                 r.isAvailable(),
                 r.getLocation() != null ? r.getLocation().getName() : null,
+                r.getLocation() != null ? r.getLocation().getLocationId() : null,
                 r.getItemType(),
                 r.getImage_name(),
                 r.getImage_type(),

@@ -9,7 +9,7 @@ import java.util.Map;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.PROPERTY,
+        include = JsonTypeInfo.As.EXISTING_PROPERTY,
         property = "itemType",
         visible = true)
 @JsonSubTypes({
@@ -23,25 +23,40 @@ public abstract class ItemDto
 {
     private int itemId;
     @NotNull(message = "Name is required...")
+    @NotBlank(message = "Name must not be blank")
     private String name;
     private String description;
     @NotNull(message = "Price is required...")
+    @DecimalMin(value = "0.0", inclusive = true, message = "Price must be ≥ 0")
     private Double price;
     private int userId;
+    @NotBlank(message = "Category is required")
     private String category;
+    @NotBlank(message = "Release date is required")
+    @Pattern(
+            regexp = "\\d{4}-\\d{2}-\\d{2}",
+            message = "Release date must be YYYY-MM-DD"
+    )
     private String releaseDate;
     private boolean available;
+
     private String location;
+    @NotNull(message = "Location is required")
     private Integer locationId;
+    @NotBlank(message = "Item type is required")
     private String itemType;
     private String image_name;
     private String image_type;
     private byte[] image_date;
+    private Map<@NotBlank String, @NotBlank(message="Value cannot be blank") String> specificFields;
+
+
 
     public ItemDto() {
     }
 
-    public ItemDto(int itemId, String name, String description, Double price, int userId, String category, String releaseDate, boolean available, String location, String itemType, String image_name, String image_type, byte[] image_date) {
+/*
+    public ItemDto(int itemId, String name, String description, Double price, int userId, String category, String releaseDate, boolean available, String itemType, String image_name, String image_type, byte[] image_date) {
         this.itemId = itemId;
         this.name = name;
         this.description = description;
@@ -50,12 +65,13 @@ public abstract class ItemDto
         this.category = category;
         this.releaseDate = releaseDate;
         this.available = available;
-        this.location = location;
+        //this.location = location;
         this.itemType = itemType;
         this.image_name = image_name;
         this.image_type = image_type;
         this.image_date = image_date;
     }
+*/
 
     public ItemDto(int itemId, String name, String description, Double price, int userId, String category, String releaseDate, boolean available, String location, Integer locationId, String itemType, String image_name, String image_type, byte[] image_date) {
         this.itemId = itemId;
@@ -82,6 +98,11 @@ public abstract class ItemDto
     {
         throw new UnsupportedOperationException("setSpecificFields not implemented for base ItemDto");
 
+    }
+
+    public String getSimpleName()
+    {
+        return "";
     }
 
     public int getUserId() {

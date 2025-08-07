@@ -3,12 +3,16 @@ package com.cboard.marketplace.marketplace_backend.service;
 import com.cboard.marketplace.marketplace_backend.dao.ItemDao;
 
 import com.cboard.marketplace.marketplace_backend.model.Dto.ItemDto;
+import com.cboard.marketplace.marketplace_backend.model.Dto.ItemMetadata.FieldSchema;
+import com.cboard.marketplace.marketplace_backend.model.Dto.ItemMetadata.ItemTypeSchema;
+import com.cboard.marketplace.marketplace_backend.model.Dto.ProductDto;
+import com.cboard.marketplace.marketplace_backend.model.Dto.RequestDto;
+import com.cboard.marketplace.marketplace_backend.model.Dto.ServiceDto;
 import com.cboard.marketplace.marketplace_backend.model.DtoMapping.fromDto.DtoToItemFactory;
 import com.cboard.marketplace.marketplace_backend.model.DtoMapping.toDto.ItemToDtoFactory;
 import com.cboard.marketplace.marketplace_backend.model.Item;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +23,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ItemService {
@@ -241,6 +246,42 @@ public class ItemService {
                 );
 
         return new ResponseEntity<>(dtoPage, HttpStatus.OK);
+    }
+
+    public ResponseEntity<List<ItemTypeSchema>> getAllschemas() {
+        List<ItemTypeSchema> schemas = new ArrayList<>();
+
+        // for each concrete class you want to support...
+        for (Class<? extends ItemDto> cls : List.of(ProductDto.class, ServiceDto.class, RequestDto.class)) {
+            //String typeName = cls.getSimpleName(); // “Product”, “ServiceItem”, etc.
+
+            try {
+                // instantiate a “blank” instance (you’ll need a no-arg ctor or use defaults)
+                ItemDto instance = cls.getDeclaredConstructor().newInstance();
+
+                String typeName = instance.getSimpleName();
+
+                // call its getSpecificFields() → Map<String,String>
+                Map<String,String> spec = instance.getSpecificFields();
+
+                // turn that into a List<FieldSchema>
+                List<FieldSchema> fieldList = new ArrayList<>();
+                for (String key : spec.keySet()) {
+                    fieldList.add(new FieldSchema(
+                            key,
+                            key,        // if you need a prettier label, store it in the class or use a naming strategy
+                            "string"    // you could guess “number” if the value is numeric, etc.
+                    ));
+                }
+
+                schemas.add(new ItemTypeSchema(typeName, fieldList));
+            } catch (Exception ex) {
+                System.out.println("Error finding itemSchemas");
+            }
+        }
+
+        System.out.println("Schemas: " + schemas);
+        return new ResponseEntity<>(schemas, HttpStatus.OK);
     }
 }
 

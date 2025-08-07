@@ -20,6 +20,7 @@ public class ServiceToDtoMapper implements ItemToDtoMapper<Service>
                 s.getReleaseDate(),
                 s.isAvailable(),
                 (s.getLocation() != null) ? s.getLocation().getName() : null,
+                (s.getLocation() != null) ? s.getLocation().getLocationId() : null,
                 s.getItemType(),
                 s.getImage_name(),
                 s.getImage_type(),

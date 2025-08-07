@@ -30,7 +30,7 @@ public class RequestDtoToItemMapper implements DtoToItemMapper<RequestDto>
                 catService.findByName(dto.getCategory()),
                 dto.getReleaseDate(),
                 dto.isAvailable(),
-                locService.findByName(dto.getLocation()),
+                locService.findById(dto.getLocationId()),
                 dto.getItemType(),
                 dto.getImage_name(),
                 dto.getImage_type(),
