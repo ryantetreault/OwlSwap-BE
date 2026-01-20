@@ -212,8 +212,8 @@ public class ItemService {
                 image.setImage_name(file.getOriginalFilename());
                 image.setImage_type(file.getContentType());
                 image.setImage_date(file.getBytes());
-                ItemImage savedImage = itemImageDao.save(image);
-                item.addImage(savedImage);
+                //ItemImage savedImage = itemImageDao.save(image);
+                item.addImage(image);
             }
             dao.save(item);
 

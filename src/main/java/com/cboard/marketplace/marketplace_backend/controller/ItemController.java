@@ -30,10 +30,8 @@ public class ItemController
 {
     @Autowired
     private Validator validator;
-
     @Autowired
     ItemService service;
-
     @Autowired
     private CategoryService categoryService;
 
@@ -129,8 +127,6 @@ public class ItemController
         }
     }
 
-
-
     @GetMapping("{id}/owner")
     public ResponseEntity<Page<ItemDto>> getItemByOwner(@PathVariable("id") int userId, @PageableDefault(size=6) Pageable pageable)
     {
@@ -152,8 +148,6 @@ public class ItemController
             return new ResponseEntity<>("Error", HttpStatus.BAD_REQUEST);
         }
     }*/
-
-
 
     //upload image and item at same time
 /*    @PostMapping(
@@ -219,8 +213,6 @@ public class ItemController
     public ResponseEntity<List<ItemTypeSchema>> getItemScehmas(){
         return service.getAllschemas();
     }
-
-
 
     //soft deletes an item -- instead of actually deleting an item, turns its available attribute to false
     @DeleteMapping("{id}/delete")
