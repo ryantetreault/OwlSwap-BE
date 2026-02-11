@@ -40,7 +40,8 @@ public class ItemController
     public ResponseEntity<Page<ItemDto>> getAllItems(@PageableDefault(size=6) Pageable pageable)
     {
         //could potentially throw a runtime exception if cant map an item, consider handling this later?
-        return service.getAllItems(pageable);
+        //return service.getAllItems(pageable);
+        return ResponseEntity.ok(service.getAllItems(pageable));
     }
 
     @GetMapping("search")
@@ -64,9 +65,9 @@ public class ItemController
     }*/
 
     @GetMapping("{id}")
-    public ResponseEntity<?> getItem(@PathVariable("id") int itemId)
+    public ResponseEntity<ItemDto> getItem(@PathVariable("id") int itemId)
     {
-        return service.getItem(itemId);
+        return ResponseEntity.ok(service.getItem(itemId));
     }
 
     @PostMapping("add")

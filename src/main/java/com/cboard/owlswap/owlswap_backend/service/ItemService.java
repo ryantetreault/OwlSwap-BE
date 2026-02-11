@@ -3,6 +3,8 @@ package com.cboard.owlswap.owlswap_backend.service;
 import com.cboard.owlswap.owlswap_backend.dao.ItemDao;
 
 import com.cboard.owlswap.owlswap_backend.dao.ItemImageDao;
+import com.cboard.owlswap.owlswap_backend.exception.DtoMappingException;
+import com.cboard.owlswap.owlswap_backend.exception.NotFoundException;
 import com.cboard.owlswap.owlswap_backend.model.Dto.ItemDto;
 import com.cboard.owlswap.owlswap_backend.model.Dto.ItemMetadata.FieldSchema;
 import com.cboard.owlswap.owlswap_backend.model.Dto.ItemMetadata.ItemTypeSchema;
@@ -13,6 +15,7 @@ import com.cboard.owlswap.owlswap_backend.model.DtoMapping.fromDto.DtoToItemFact
 import com.cboard.owlswap.owlswap_backend.model.DtoMapping.toDto.ItemToDtoFactory;
 import com.cboard.owlswap.owlswap_backend.model.Item;
 import com.cboard.owlswap.owlswap_backend.model.ItemImage;
+import com.cboard.owlswap.owlswap_backend.security.CurrentUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,6 +38,8 @@ public class ItemService {
     @Autowired
     UserService userService;
     @Autowired
+    CurrentUser currentUser;
+    @Autowired
     ItemImageDao itemImageDao;
     private final ItemToDtoFactory toDtoFactory;
     private final DtoToItemFactory fromDtoFactory;
@@ -46,7 +51,7 @@ public class ItemService {
         this.fromDtoFactory = fromDtoFactory;
     }
 
-    public ResponseEntity<Page<ItemDto>> getAllItems(Pageable pageable) {
+/*    public ResponseEntity<Page<ItemDto>> getAllItems(Pageable pageable) {
         Integer userId = userService.getProfile().getBody().getUserId();
         Page<Item> items = dao.findByAvailableTrueAndUserUserIdNot(userId, pageable);
 
@@ -61,7 +66,7 @@ public class ItemService {
                         }
                 );
 
-        /*List<ItemDto> items = dao.findAll().stream()
+        *//*List<ItemDto> items = dao.findAll().stream()
                 .filter(Item::isAvailable)
                 .map(item -> {
                     try
@@ -75,26 +80,46 @@ public class ItemService {
                     }
                         }
                 )
-                .toList();*/
+                .toList();*//*
 
         return new ResponseEntity<>(dtoPage, HttpStatus.OK);
 
+    }*/
+
+    public Page<ItemDto> getAllItems(Pageable pageable) {
+        Integer userId = currentUser.userId(); //from JWT
+        Page<Item> items = dao.findByAvailableTrueAndUserUserIdNot(userId, pageable);
+
+        return items
+                .map(item -> {
+                            try {
+                                return toDtoFactory.toDto(item);
+                            } catch (IllegalAccessException e) {
+                                throw new DtoMappingException("Failed to map Item to DTO. itemId=" + item.getItemId(), e);
+                            }
+                        }
+                );
     }
 
     //returns an item from its id if it exists and it is available
-    public ResponseEntity<?> getItem(int itemId) {
-        try {
-            Item item = dao.findByItemId(itemId);
+    public ItemDto getItem(int itemId) {
+        Item item = dao.findByItemId(itemId);
 
-            if (!item.isAvailable())
-                return new ResponseEntity<>("Item not available...", HttpStatus.NOT_FOUND);
+        if(item == null)
+            throw new NotFoundException("Item not found: " + itemId);
 
-            ItemDto dto = toDtoFactory.toDto(item);
-            return new ResponseEntity<>(dto, HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>("Error occurred", HttpStatus.BAD_REQUEST);
+        if (!item.isAvailable())
+            throw new NotFoundException("Item not available.");
+
+        try
+        {
+            return toDtoFactory.toDto(item);
         }
+        catch (IllegalAccessException e)
+        {
+            throw new RuntimeException("Error converting item to DTO", e);
+        }
+
     }
 
 
