@@ -21,16 +21,7 @@ import java.time.Instant;
 public class GlobalExceptionHandler
 {
 
-    public record ApiError(
-            String code,
-            String message,
-            int status,
-            String path,
-            Instant timestamp,
-            Map<String, String> fieldErrors
-    ) {}
-
-/*    @ExceptionHandler(MethodArgumentNotValidException.class)
+    /*    @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
 

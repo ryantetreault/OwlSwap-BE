@@ -19,6 +19,8 @@ import java.util.List;
 public class SecurityConfig {
     @Autowired
     private JwtAuthFilter jwtAuthFilter;
+    @Autowired private ApiErrorAuthenticationEntryPoint authEntryPoint;
+    @Autowired private ApiErrorAccessDeniedHandler accessDeniedHandler;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -46,6 +48,10 @@ public class SecurityConfig {
                 }))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(eh -> eh
+                        .authenticationEntryPoint(authEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler)
+                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .anyRequest().authenticated());
