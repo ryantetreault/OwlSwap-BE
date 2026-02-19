@@ -1,6 +1,7 @@
 package com.cboard.owlswap.owlswap_backend.service;
 
 import com.cboard.owlswap.owlswap_backend.dao.UserDao;
+import com.cboard.owlswap.owlswap_backend.exception.NotFoundException;
 import com.cboard.owlswap.owlswap_backend.model.Dto.UserDto;
 import com.cboard.owlswap.owlswap_backend.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,14 +40,16 @@ public class UserService
 
     public User findById(int userId)
     {
-        return dao.findById(userId);
+        return dao.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found: "));
     }
 
     public ResponseEntity<String> deleteUser(int userId)
     {
         try
         {
-            User user = dao.findById(userId);
+            User user = dao.findById(userId)
+                    .orElseThrow(() -> new NotFoundException("User not found: "));
             dao.delete(user);
             return new ResponseEntity<>("Account deleted", HttpStatus.OK);
         }

@@ -21,26 +21,36 @@ public class TransactionController
     @GetMapping("all")
     public ResponseEntity<List<TransactionDto>> getAllTransactions()
     {
-        return transactionService.getAllTransactions();
+        return ResponseEntity.ok(transactionService.getAllTransactions());
     }
 
     @GetMapping("buyer/{id}/all")
-    public ResponseEntity<Page<TransactionDto>> getAllTransactionsByBuyer(@PathVariable("id") int buyerId, @PageableDefault(size=6) Pageable pageable)
+    public ResponseEntity<Page<TransactionDto>> getAllTransactionsByBuyer(@PathVariable("id") int buyerId,
+                                                                          @PageableDefault(size=6) Pageable pageable)
     {
-        return transactionService.getAllTransactionsByBuyer(buyerId, pageable);
+        return ResponseEntity.ok(transactionService.getAllTransactionsByBuyer(buyerId, pageable));
     }
 
     @GetMapping("seller/{id}/all")
-    public ResponseEntity<Page<TransactionDto>> getAllTransactionsBySeller(@PathVariable("id") int sellerId, @PageableDefault(size=6) Pageable pageable)
+    public ResponseEntity<Page<TransactionDto>> getAllTransactionsBySeller(@PathVariable("id") int sellerId,
+                                                                           @PageableDefault(size=6) Pageable pageable)
     {
-        return transactionService.getAllTransactionsBySeller(sellerId, pageable);
+        return ResponseEntity.ok(transactionService.getAllTransactionsBySeller(sellerId, pageable));
     }
 
 
-    @PostMapping("purchase/{itemId}/{buyerId}")
-    public ResponseEntity<String> purchaseItem(@PathVariable("itemId") int itemId, @PathVariable("buyerId") int buyerId)
+/*    @PostMapping("purchase/{itemId}/{buyerId}")
+    public ResponseEntity<String> purchaseItem(@PathVariable("itemId") int itemId,
+                                               @PathVariable("buyerId") int buyerId)
     {
         return transactionService.purchaseItem(itemId, buyerId);
+    }*/
+
+    @PostMapping("purchase/{itemId}")
+    public ResponseEntity<String> purchaseItem(@PathVariable("itemId") int itemId)
+    {
+        transactionService.purchaseItem(itemId);
+        return ResponseEntity.ok("Sale Successful!");
     }
 
 

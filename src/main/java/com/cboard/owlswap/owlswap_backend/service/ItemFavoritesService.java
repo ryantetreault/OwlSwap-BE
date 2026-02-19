@@ -3,6 +3,9 @@ package com.cboard.owlswap.owlswap_backend.service;
 import com.cboard.owlswap.owlswap_backend.dao.ItemDao;
 import com.cboard.owlswap.owlswap_backend.dao.ItemFavoritesDao;
 import com.cboard.owlswap.owlswap_backend.dao.UserDao;
+import com.cboard.owlswap.owlswap_backend.exception.DtoMappingException;
+import com.cboard.owlswap.owlswap_backend.exception.NotAvailableException;
+import com.cboard.owlswap.owlswap_backend.exception.NotFoundException;
 import com.cboard.owlswap.owlswap_backend.model.Dto.ItemDto;
 import com.cboard.owlswap.owlswap_backend.model.DtoMapping.fromDto.DtoToItemFactory;
 import com.cboard.owlswap.owlswap_backend.model.DtoMapping.toDto.ItemToDtoFactory;
@@ -10,12 +13,15 @@ import com.cboard.owlswap.owlswap_backend.model.Item;
 import com.cboard.owlswap.owlswap_backend.model.ItemFavorite;
 import com.cboard.owlswap.owlswap_backend.model.ItemFavoriteId;
 import com.cboard.owlswap.owlswap_backend.model.User;
+import com.cboard.owlswap.owlswap_backend.security.CurrentUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +35,8 @@ public class ItemFavoritesService
     ItemDao itemDao;
     @Autowired
     UserDao userDao;
+    @Autowired
+    CurrentUser currentUser;
     private final ItemToDtoFactory toDtoFactory;
     private final DtoToItemFactory fromDtoFactory;
 
@@ -39,77 +47,82 @@ public class ItemFavoritesService
         this.fromDtoFactory = fromDtoFactory;
     }
 
-    public ResponseEntity<List<ItemFavorite>> getItemFavoritesByItem(int itemId)
+    public List<ItemFavorite> getItemFavoritesByItem(int itemId)
     {
-        try
-        {
-            List<ItemFavorite> itemSubscriptions = dao.findByItemItemId(itemId);
-            return new ResponseEntity<>(itemSubscriptions, HttpStatus.OK);
+        Item item = itemDao.findByItemId(itemId);
+        if (item == null) {
+            throw new NotFoundException("Item not found. itemId=" + itemId);
         }
-        catch(Exception e)
-        {
-            e.printStackTrace();
+
+        //favorites for an item only viewable by that item's user
+        if (item.getUser().getUserId() != currentUser.userId()) {
+            throw new AccessDeniedException("You cannot view favorites for this item.");
         }
-        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.BAD_REQUEST);
+
+        return dao.findByItemItemId(itemId);
     }
 
-    public ResponseEntity<Page<ItemDto>> getItemFavoritesByUser(int userId, Pageable pageable)
+    public Page<ItemDto> getMyItemFavorites(Pageable pageable)
     {
+        int userId = currentUser.userId();
 
         Page<ItemFavorite> favorites = dao.findByUserUserId(userId, pageable);
         Page<Item> items = favorites.map(ItemFavorite::getItem);
 
-        Page<ItemDto> dtoPage = items
+        return items
                 .map(item -> {
                             try {
                                 return toDtoFactory.toDto(item);
                             } catch (IllegalAccessException e) {
-                                e.printStackTrace();
-                                throw new RuntimeException("Error converting item to DTO: " + item, e);
+                                throw new DtoMappingException("Error converting item to DTO. itemId=" + item.getItemId(), e);
                             }
                         }
                 );
-
-        return new ResponseEntity<>(dtoPage, HttpStatus.OK);
-
-
     }
 
-    public ResponseEntity<String> addFavorite(int userId, int itemId) {
-        User user = userDao.findById(userId);
-        if(user == null)
-            return new ResponseEntity<>("User not found", HttpStatus.BAD_REQUEST);
+    @Transactional
+    public void addFavorite(int itemId)
+    {
+        int userId = currentUser.userId();
+        User user = userDao.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found. userId=" + userId));
+
         Item item = itemDao.findByItemId(itemId);
         if(item == null)
-            return new ResponseEntity<>("Item not found", HttpStatus.BAD_REQUEST);
+            throw new NotFoundException("Item not found. itemId=" + itemId);
+
+        if (!item.isAvailable()) {
+            throw new NotFoundException("Item not available.");
+        }
 
         ItemFavoriteId itemFavoriteId = new ItemFavoriteId(itemId, userId);
+        ItemFavoriteId id = new ItemFavoriteId(itemId, userId);
+
+        if (dao.existsById(id)) {
+            //consider changing this to a specific CONFLICT exception
+            throw new NotAvailableException("Item is already favorited.");
+        }
+
         ItemFavorite itemFavorite = new ItemFavorite(itemFavoriteId, item, user);
 
         dao.save(itemFavorite);
-
-        return new ResponseEntity<>("Item favorited", HttpStatus.OK);
-
     }
 
-    public ResponseEntity<String> deleteFavorite(int userId, int itemId) {
+    public void removeFavorite(int itemId)
+    {
+        int userId = currentUser.userId();
+        ItemFavoriteId id = new ItemFavoriteId(itemId, userId);
 
-        ItemFavoriteId itemFavoriteId = new ItemFavoriteId(itemId, userId);
-        ItemFavorite itemFavorite = dao.findItemFavoriteByItemFavoriteId(itemFavoriteId);
-        if(itemFavorite == null)
-            return new ResponseEntity<>("Favorited item not found", HttpStatus.BAD_REQUEST);
-
-        dao.delete(itemFavorite);
-
-        return new ResponseEntity<>("Favorited item removed", HttpStatus.OK);
+        ItemFavorite fav = dao.findItemFavoriteByItemFavoriteId(id);
+        if (fav != null) {
+            dao.delete(fav);
+        }
     }
 
-    public ResponseEntity<Boolean> getIsFavorite(int userId, int itemId) {
-        ItemFavoriteId itemFavoriteId = new ItemFavoriteId(itemId, userId);
-        ItemFavorite itemFavorite = dao.findItemFavoriteByItemFavoriteId(itemFavoriteId);
-        if(itemFavorite == null)
-            return new ResponseEntity<>(false, HttpStatus.OK);
+    public Boolean getIsFavorite(int itemId)
+    {
+        int userId = currentUser.userId();
 
-        return new ResponseEntity<>(true, HttpStatus.OK);
+        return dao.existsByItemFavoriteId(new ItemFavoriteId(itemId, userId));
     }
 }

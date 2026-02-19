@@ -1,6 +1,7 @@
 package com.cboard.owlswap.owlswap_backend.controller;
 
 import com.cboard.owlswap.owlswap_backend.dao.UserDao;
+import com.cboard.owlswap.owlswap_backend.exception.NotFoundException;
 import com.cboard.owlswap.owlswap_backend.model.*;
 import com.cboard.owlswap.owlswap_backend.model.Dto.UserDto;
 import com.cboard.owlswap.owlswap_backend.service.RatingService;
@@ -37,7 +38,8 @@ public class UserController
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDto> getUserById(@PathVariable("id") int userId) {
-        User user = userDao.findById(userId);
+        User user = userDao.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found: "));
         if (user == null) {
             return ResponseEntity.notFound().build();
         }
