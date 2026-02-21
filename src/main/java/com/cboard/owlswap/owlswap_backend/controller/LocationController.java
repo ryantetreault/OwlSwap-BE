@@ -1,30 +1,34 @@
 package com.cboard.owlswap.owlswap_backend.controller;
 
+import com.cboard.owlswap.owlswap_backend.model.Dto.LocationDto;
 import com.cboard.owlswap.owlswap_backend.model.Location;
 import com.cboard.owlswap.owlswap_backend.dao.LocationDao;
-import jakarta.servlet.http.HttpServletRequest;
+import com.cboard.owlswap.owlswap_backend.service.LocationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
-@CrossOrigin(origins = "*")
+@RequestMapping("location")
+//@CrossOrigin(origins = "*")
 public class LocationController {
 
     @Autowired
-    private LocationDao locationRepository;
+    private LocationService service;
 
-    @GetMapping("/locations")
-    public List<Location> getAllLocations(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-        System.out.println("Authorization Header: " + authHeader);
-        return locationRepository.findAll();
+    @GetMapping("all")
+    public ResponseEntity<List<LocationDto>> getAllLocations()
+    {
+        List<LocationDto> locations = service.getAllLocations();
+        return ResponseEntity.ok(locations);
     }
 
-    @GetMapping("/locations/{id}")
-    public Location getLocationById(@PathVariable int id) {
-        return locationRepository.findById(id).orElse(null);
+    @GetMapping("{id}")
+    public ResponseEntity<LocationDto> getLocationById(@PathVariable int id)
+    {
+        LocationDto loc = service.getLocationById(id);
+        return ResponseEntity.ok(loc);
     }
 }

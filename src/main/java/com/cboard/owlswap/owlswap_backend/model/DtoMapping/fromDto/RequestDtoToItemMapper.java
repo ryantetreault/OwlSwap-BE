@@ -1,5 +1,7 @@
 package com.cboard.owlswap.owlswap_backend.model.DtoMapping.fromDto;
 
+import com.cboard.owlswap.owlswap_backend.dao.LocationDao;
+import com.cboard.owlswap.owlswap_backend.exception.NotFoundException;
 import com.cboard.owlswap.owlswap_backend.model.*;
 import com.cboard.owlswap.owlswap_backend.model.Dto.ItemImageDto;
 import com.cboard.owlswap.owlswap_backend.model.Dto.RequestDto;
@@ -20,6 +22,8 @@ public class RequestDtoToItemMapper implements DtoToItemMapper<RequestDto>
     @Autowired
     LocationService locService;
     @Autowired
+    LocationDao locDao;
+    @Autowired
     UserService userService;
     @Autowired
     DtoToImageMapper imageMapper;
@@ -36,8 +40,8 @@ public class RequestDtoToItemMapper implements DtoToItemMapper<RequestDto>
                 catService.findByName(dto.getCategory()),
                 dto.getReleaseDate(),
                 dto.isAvailable(),
-                locService.findById(dto.getLocationId()),
-                dto.getItemType(),
+                locDao.findById(dto.getLocationId())
+                        .orElseThrow(() -> new NotFoundException("Location not found.")),                dto.getItemType(),
                 new ArrayList<>(),
                 /*dto.getImage_name(),
                 dto.getImage_type(),
