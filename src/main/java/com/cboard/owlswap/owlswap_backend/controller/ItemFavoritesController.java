@@ -23,29 +23,31 @@ public class ItemFavoritesController
     @GetMapping("item/{id}")
     public ResponseEntity<List<ItemFavorite>> getItemFavoritesByItem(@PathVariable("id") int itemId)
     {
-        return service.getItemFavoritesByItem(itemId);
+        return ResponseEntity.ok(service.getItemFavoritesByItem(itemId));
     }
-    @GetMapping("user/{id}")
-    public ResponseEntity<Page<ItemDto>> getItemFavoritesByUser(@PathVariable("id") int userId, @PageableDefault(size = 6) Pageable pageable)
+    @GetMapping("user/me")
+    public ResponseEntity<Page<ItemDto>> getMyItemFavorites(@PageableDefault(size = 6) Pageable pageable)
     {
-        return service.getItemFavoritesByUser(userId, pageable);
-    }
-
-    @GetMapping("is-favorite/user{userId}/item{itemId}")
-    public ResponseEntity<Boolean> getIsFavorite(@PathVariable("userId") int userId, @PathVariable("itemId") int itemId)
-    {
-        return service.getIsFavorite(userId, itemId);
+        return ResponseEntity.ok(service.getMyItemFavorites(pageable));
     }
 
-    @PostMapping("add/user{userId}/item{itemId}")
-    public ResponseEntity<String> addFavorite(@PathVariable("userId") int userId, @PathVariable("itemId") int itemId)
+    @GetMapping("is-favorite/item/{itemId}")
+    public ResponseEntity<Boolean> getIsFavorite(@PathVariable("itemId") int itemId)
     {
-        return service.addFavorite(userId, itemId);
+        return ResponseEntity.ok(service.getIsFavorite(itemId));
     }
 
-    @DeleteMapping("delete/user{userId}/item{itemId}")
-    public ResponseEntity<String> deleteFavorite(@PathVariable("userId") int userId, @PathVariable("itemId") int itemId)
+    @PostMapping("add-favorite/item/{itemId}")
+    public ResponseEntity<String> addFavorite(@PathVariable("itemId") int itemId)
     {
-        return service.deleteFavorite(userId, itemId);
+        service.addFavorite(itemId);
+        return ResponseEntity.ok("Item favorited!");
+    }
+
+    @DeleteMapping("remove-favorite/item/{itemId}")
+    public ResponseEntity<String> removeFavorite(@PathVariable("itemId") int itemId)
+    {
+        service.removeFavorite(itemId);
+        return ResponseEntity.noContent().build();
     }
 }

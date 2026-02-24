@@ -9,5 +9,5 @@ import java.util.Optional;
 @Repository
 public interface UserArchiveDao extends JpaRepository<UserArchive, Integer> {
     Optional<UserArchive> findByUsername(String username);
-    UserArchive findById(int userId);
+    //UserArchive findById(int userId);
 }

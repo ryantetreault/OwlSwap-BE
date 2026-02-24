@@ -36,4 +36,31 @@ public class JwtUtil {
             return false;
         }
     }
+
+    public Integer extractUserId(String token)
+    {
+        /*Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();*/
+
+        Claims claims = extractAllClaims(token);
+
+        Object id = claims.get("id");
+        if (id instanceof Integer i)
+            return i;
+        if (id instanceof Number n)
+            return n.intValue();
+        if (id instanceof String s)
+            return Integer.parseInt(s);
+
+        throw new JwtException("Invalid is claim type");
+
+    }
+
+    private Claims extractAllClaims(String token)
+    {
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+    }
 }

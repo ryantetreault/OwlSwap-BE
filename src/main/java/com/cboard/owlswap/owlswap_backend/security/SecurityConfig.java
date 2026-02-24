@@ -19,6 +19,8 @@ import java.util.List;
 public class SecurityConfig {
     @Autowired
     private JwtAuthFilter jwtAuthFilter;
+    @Autowired private ApiErrorAuthenticationEntryPoint authEntryPoint;
+    @Autowired private ApiErrorAccessDeniedHandler accessDeniedHandler;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -37,17 +39,23 @@ public class SecurityConfig {
                     var cfg = new CorsConfiguration();
                     cfg.setAllowedOrigins(List.of("http://localhost:3000"));   // React dev URL
                     cfg.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
-                    cfg.setAllowedHeaders(List.of("*"));                       // or specific ones
+                    //cfg.setAllowedHeaders(List.of("*"));                       // or specific ones
+                    cfg.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+                    cfg.setExposedHeaders(List.of("authorization"));
                     cfg.setAllowCredentials(true);                             // if you send cookies / Authorization
                     cfg.setMaxAge(3600L);                                      // cache pre-flight 1h
                     return cfg;
                 }))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(eh -> eh
+                        .authenticationEntryPoint(authEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler)
+                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        //.anyRequest().authenticated());
-                                  .anyRequest().permitAll()); // delete this and uncomment above to turn auth back on
+                        .anyRequest().authenticated());
+                                  //.anyRequest().permitAll()); // delete this and uncomment above to turn auth back on
 
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

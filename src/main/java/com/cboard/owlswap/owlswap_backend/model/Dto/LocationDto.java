@@ -18,6 +18,14 @@ public class LocationDto {
 
     public LocationDto() {}
 
+    public LocationDto(int locationId, String name, String address, Double latitude, Double longitude) {
+        this.locationId = locationId;
+        this.name = name;
+        this.address = address;
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
     public int getLocationId() {
         return locationId;
     }
