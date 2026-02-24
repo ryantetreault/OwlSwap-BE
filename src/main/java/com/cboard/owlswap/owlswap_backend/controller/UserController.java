@@ -4,9 +4,12 @@ import com.cboard.owlswap.owlswap_backend.dao.UserDao;
 import com.cboard.owlswap.owlswap_backend.exception.NotFoundException;
 import com.cboard.owlswap.owlswap_backend.model.*;
 import com.cboard.owlswap.owlswap_backend.model.Dto.UserDto;
+import com.cboard.owlswap.owlswap_backend.model.DtoMapping.UserMapper;
 import com.cboard.owlswap.owlswap_backend.service.RatingService;
 import com.cboard.owlswap.owlswap_backend.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,48 +27,44 @@ public class UserController
 
     @Autowired
     RatingService ratingService;
+    @Autowired
+    UserMapper userMapper;
 
-    @GetMapping("allUsers")
-    public ResponseEntity<List<User>> getAllUsers()
+    @GetMapping("all")
+    public ResponseEntity<List<UserDto>> getAllUsers()
     {
-        return service.getAllUsers();
+        return ResponseEntity.ok(service.getAllUsers());
     }
 
-    @GetMapping("/api/profile")
+    @GetMapping("profile")
     public ResponseEntity<UserDto> getProfile() {
-        return service.getProfile();
+        UserDto user = service.getProfile();
+        return ResponseEntity.ok(user);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("{id}")
     public ResponseEntity<UserDto> getUserById(@PathVariable("id") int userId) {
-        User user = userDao.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found: "));
+        UserDto user = service.getUserById(userId);
+
         if (user == null) {
             return ResponseEntity.notFound().build();
         }
-
-        Double avgRating = ratingService.calculateAverageRating(user.getUserId());
-        user.setAverageRating(avgRating);
-
-        UserDto userDto = new UserDto(
-                user.getUserId(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getEmail(),
-                user.getUsername(),
-                user.getAverageRating()
-        );
-        return ResponseEntity.ok(userDto);
+        return ResponseEntity.ok(user);
     }
 
-    @PostMapping("/api/rate/{userId}")
-    public ResponseEntity<String> rateUser(@PathVariable int userId, @RequestBody double rating) {
-        return ratingService.addRating(userId, rating);
+    @PostMapping("rate/{id}")
+    public ResponseEntity<String> rateUser(@PathVariable("id") int userId,
+                                           @Valid @RequestBody RatingRequest req)
+    {
+        ratingService.addRating(userId, req.rating());
+        return ResponseEntity.status(HttpStatus.CREATED).body("Rating successfully added");
     }
 
     @DeleteMapping("{id}/delete")
     public ResponseEntity<String> deleteUser(@PathVariable("id") int userId)
     {
-        return service.deleteUser(userId);
+        service.deleteUser(userId);
+        return ResponseEntity.ok("User deleted.");
     }
+
 }

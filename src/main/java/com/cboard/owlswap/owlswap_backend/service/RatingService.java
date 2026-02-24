@@ -2,8 +2,11 @@ package com.cboard.owlswap.owlswap_backend.service;
 
 import com.cboard.owlswap.owlswap_backend.dao.RatingDao;
 import com.cboard.owlswap.owlswap_backend.dao.UserDao;
+import com.cboard.owlswap.owlswap_backend.exception.BadRequestException;
+import com.cboard.owlswap.owlswap_backend.exception.NotFoundException;
 import com.cboard.owlswap.owlswap_backend.model.Rating;
 import com.cboard.owlswap.owlswap_backend.model.User;
+import com.cboard.owlswap.owlswap_backend.security.CurrentUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -19,32 +22,28 @@ public class RatingService {
 
     @Autowired
     private UserDao userDao;
+    @Autowired
+    CurrentUser currentUser;
 
     @Transactional
-    public ResponseEntity<String> addRating(int userId, double score) {
-        if (score < 0.0 || score > 5.0) {
-            return ResponseEntity.badRequest().body("Rating must be between 0.0 and 5.0");
-        }
+    public void addRating(int userId, double score) {
 
-        List<User> users = userDao.findAll();
-        User user = null;
-        for (User u : users) {
-            if (u.getUserId() == userId) {
-                user = u;
-                break;
-            }
-        }
 
-        if (user == null) {
-            return ResponseEntity.badRequest().body("User not found");
-        }
+        User user = userDao.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found."));
+
+        int raterId = currentUser.userId();
+        if(raterId == userId)
+            throw new BadRequestException("Can not rate yourself");
+
 
         Rating rating = new Rating(user, score);
         ratingDao.save(rating);
+
         Double newAvg = calculateAverageRating(user.getUserId());
         user.setAverageRating(newAvg);
+
         userDao.save(user);
-        return ResponseEntity.ok("Rating submitted successfully");
     }
 
     public List<Rating> getRatingsForUser(int userId) {

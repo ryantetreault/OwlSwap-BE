@@ -1,6 +1,7 @@
 package com.cboard.owlswap.owlswap_backend.model.DtoMapping.fromDto;
 
 import com.cboard.owlswap.owlswap_backend.dao.LocationDao;
+import com.cboard.owlswap.owlswap_backend.dao.UserDao;
 import com.cboard.owlswap.owlswap_backend.exception.NotFoundException;
 import com.cboard.owlswap.owlswap_backend.model.*;
 import com.cboard.owlswap.owlswap_backend.model.Dto.ItemImageDto;
@@ -27,6 +28,8 @@ public class ProductDtoToItemMapper implements DtoToItemMapper<ProductDto>
     @Autowired
     UserService userService;
     @Autowired
+    UserDao userDao;
+    @Autowired
     DtoToImageMapper imageMapper;
 
     @Override
@@ -37,7 +40,8 @@ public class ProductDtoToItemMapper implements DtoToItemMapper<ProductDto>
                 dto.getName(),
                 dto.getDescription(),
                 dto.getPrice(),
-                userService.findById(dto.getUserId()),
+                userDao.findById(dto.getUserId())
+                        .orElseThrow(() -> new NotFoundException("User not found.")),
                 catService.findByName(dto.getCategory()),
                 dto.getReleaseDate(),
                 dto.isAvailable(),

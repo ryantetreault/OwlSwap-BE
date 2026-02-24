@@ -1,6 +1,7 @@
 package com.cboard.owlswap.owlswap_backend.model.DtoMapping;
 
 import com.cboard.owlswap.owlswap_backend.model.Dto.UserDto;
+import com.cboard.owlswap.owlswap_backend.model.User;
 import com.cboard.owlswap.owlswap_backend.model.UserArchive;
 import org.springframework.stereotype.Component;
 
@@ -30,5 +31,19 @@ public class UserMapper
                 user.getAverageRating()
         );
 
+    }
+
+    public UserDto userToDto(User user)
+    {
+        UserDto userDto = new UserDto(
+                user.getUserId(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getUsername(),
+                user.getAverageRating()
+        );
+
+        return userDto;
     }
 }

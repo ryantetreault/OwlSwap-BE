@@ -1,9 +1,12 @@
 package com.cboard.owlswap.owlswap_backend.service;
 
 import com.cboard.owlswap.owlswap_backend.dao.UserDao;
+import com.cboard.owlswap.owlswap_backend.exception.DtoMappingException;
 import com.cboard.owlswap.owlswap_backend.exception.NotFoundException;
 import com.cboard.owlswap.owlswap_backend.model.Dto.UserDto;
+import com.cboard.owlswap.owlswap_backend.model.DtoMapping.UserMapper;
 import com.cboard.owlswap.owlswap_backend.model.User;
+import com.cboard.owlswap.owlswap_backend.security.CurrentUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,66 +24,63 @@ public class UserService
     UserDao dao;
     @Autowired
     RatingService ratingService;
+    @Autowired
+    UserMapper userMapper;
+    @Autowired
+    CurrentUser currentUser;
 
 
 
 
-    public ResponseEntity<List<User>> getAllUsers()
+    public List<UserDto> getAllUsers()
     {
-        try
-        {
-            return new ResponseEntity<>(dao.findAll(), HttpStatus.OK);
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
-        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.BAD_REQUEST);
+        List<User> users = dao.findAll();
+        return users
+                .stream()
+                .map(user -> {
+                            try {
+                                return userMapper.userToDto(user);
+                            } catch (Exception e) {
+                                throw new DtoMappingException("Failed to user Item to DTO. userId=" + user.getUserId(), e);
+                            }
+                        }
+                )
+                .toList();
     }
 
-    public User findById(int userId)
+    public UserDto getUserById(int userId)
     {
-        return dao.findById(userId)
+        User user = dao.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found: "));
-    }
-
-    public ResponseEntity<String> deleteUser(int userId)
-    {
-        try
-        {
-            User user = dao.findById(userId)
-                    .orElseThrow(() -> new NotFoundException("User not found: "));
-            dao.delete(user);
-            return new ResponseEntity<>("Account deleted", HttpStatus.OK);
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-            return new ResponseEntity<>("Error deleting user", HttpStatus.BAD_REQUEST);
-        }
-    }
-
-
-    public ResponseEntity<UserDto> getProfile() {
-        //retrieve authenticated username directly
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        String username = auth.getName();
-        User user = dao.findByUsername(username).orElseThrow();
 
         Double avgRating = ratingService.calculateAverageRating(user.getUserId());
         user.setAverageRating(avgRating);
 
-        // convert user to userDto
-        UserDto userDto = new UserDto(
-                user.getUserId(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getEmail(),
-                user.getUsername(),
-                user.getAverageRating()
-        );
+        try {
+            return userMapper.userToDto(user);
+        } catch (Exception e) {
+            throw new DtoMappingException("Failed to user Item to DTO. userId=" + user.getUserId(), e);
+        }
+    }
 
-        return ResponseEntity.ok(userDto);
+    public void deleteUser(int userId)
+    {
+        User user = dao.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found: "));
+
+        dao.delete(user);
+
+    }
+
+
+    public UserDto getProfile() {
+
+        User user = currentUser.user();
+
+        Double avgRating = ratingService.calculateAverageRating(user.getUserId());
+        user.setAverageRating(avgRating);
+
+        return userMapper.userToDto(user);
+
     }
 }
