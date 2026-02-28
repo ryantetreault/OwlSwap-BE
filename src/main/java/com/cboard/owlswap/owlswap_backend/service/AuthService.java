@@ -69,7 +69,7 @@ public class AuthService {
             if (user.isEmpty())
                 return ResponseEntity.status(400).body("Username not found.");
 
-            String token = jwtUtil.generateToken(user.get());
+            String token = jwtUtil.generateAccessToken(user.get());
             return ResponseEntity.ok(new AuthResponse(token));
         } catch (Exception e) {
             return ResponseEntity.status(401).body("Invalid username or password.");

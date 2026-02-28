@@ -80,27 +80,6 @@ public class ItemController
         return ResponseEntity.ok(updated);
     }
 
-
-/*    @PutMapping(
-            value = "update/with-image",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
-    public ResponseEntity<String> updateItemWithImage(@Valid @RequestPart("item") ItemDto dto, @RequestPart(value = "image", required = false) MultipartFile image)
-    {
-        System.out.println(
-                dto.getSpecificFields()
-        );
-
-        try
-        {
-            return service.updateItemWithImage(dto, image);
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-            return new ResponseEntity<>("Error", HttpStatus.BAD_REQUEST);
-        }
-    }*/
     @PutMapping(
             value = "update/with-images",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE

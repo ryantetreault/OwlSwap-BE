@@ -1,5 +1,6 @@
 package com.cboard.owlswap.owlswap_backend.model;
 
+import com.cboard.owlswap.owlswap_backend.security.RefreshToken;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
@@ -25,6 +26,9 @@ public class User
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Rating> ratings = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RefreshToken> refreshTokens = new ArrayList<>();
 
     public User() {
     }
