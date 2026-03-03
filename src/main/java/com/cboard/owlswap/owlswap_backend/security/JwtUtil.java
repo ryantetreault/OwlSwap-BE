@@ -3,34 +3,53 @@ package com.cboard.owlswap.owlswap_backend.security;
 import com.cboard.owlswap.owlswap_backend.model.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 
 @Component
 public class JwtUtil {
-    private final String SECRET_KEY = "supersecuresecretkeythatis32chars!";
+    /*private final String SECRET_KEY = "supersecuresecretkeythatis32chars!";
     private final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
-    private final long EXPIRATION_TIME = 86400000; // 24 hours
+    private final long EXPIRATION_TIME = 86400000; // 24 hours*/
 
-    public String generateToken(User user) {
+    private final Key key;
+    private final long accessExpMs;
+
+    public JwtUtil(
+            @Value("${app.jwt.secret}") String secret,
+            @Value("${app.jwt.access-exp-ms}") long accessExpMs
+    )
+    {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        this.accessExpMs = accessExpMs;
+    }
+
+    public String generateAccessToken(User user) {
         return Jwts.builder()
                 .setSubject(user.getUsername()) //unique user identity
                 .claim("id", user.getUserId()) // user id
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .setExpiration(new Date(System.currentTimeMillis() + accessExpMs))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
+    public Claims parseClaims(String token) throws JwtException {
+        return Jwts.parserBuilder().setSigningKey(key).build()
+                .parseClaimsJws(token).getBody();
+    }
+
     public String extractUsername(String token) {
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
+        return parseClaims(token).getSubject();
     }
 
     public boolean isTokenValid(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
+            parseClaims(token).getSubject();
             return true;
         } catch (JwtException e) {
             return false;
@@ -39,11 +58,6 @@ public class JwtUtil {
 
     public Integer extractUserId(String token)
     {
-        /*Claims claims = Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();*/
 
         Claims claims = extractAllClaims(token);
 

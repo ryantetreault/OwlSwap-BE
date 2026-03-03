@@ -22,17 +22,6 @@ import java.time.Instant;
 public class GlobalExceptionHandler
 {
 
-    /*    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-
-        ex.getBindingResult().getFieldErrors().forEach(error ->
-                errors.put(error.getField(), error.getDefaultMessage())
-        );
-
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-    }*/
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleMethodArgNotValid(MethodArgumentNotValidException ex, HttpServletRequest req)
     {
@@ -72,26 +61,6 @@ public class GlobalExceptionHandler
 
         return ResponseEntity.badRequest().body(body);
     }
-
-/*    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ApiError> handleDataIntegrity(DataIntegrityViolationException ex) {
-        // Get the most specific (SQL) message, e.g. "Incorrect date value: '8/25/2025' for column 'deadline'..."
-        String root = NestedExceptionUtils.getMostSpecificCause(ex).getMessage();
-
-        // Optional: make a friendlier message if it looks like a MySQL date format error
-        String message = root != null && root.contains("Incorrect date value")
-                ? "Invalid date format for 'deadline'. Use YYYY-MM-DD."
-                : "Request violates a database constraint: " + root;
-
-        ApiError body = new ApiError(
-                "DATA_INTEGRITY_VIOLATION",
-                message,
-                Instant.now()
-        );
-
-        // 400 since this is a bad client payload, not a server failure
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
-    }*/
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiError> handleDataIntegrity(DataIntegrityViolationException ex, HttpServletRequest req) {
