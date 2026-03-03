@@ -195,4 +195,29 @@ public class AuthService {
         return null;
     }
 
+    public ResponseEntity<?> logout(HttpServletRequest request)
+    {
+        String rawRefresh = readCookie(request, refreshCookieName);
+        if (rawRefresh != null && !rawRefresh.isBlank()) {
+            String hash = RefreshTokenUtil.hash(rawRefresh);
+            refreshTokenDao.findByTokenHash(hash).ifPresent(rt -> {
+                rt.setRevokedAt(Instant.now());
+                refreshTokenDao.save(rt);
+            });
+        }
+
+        // clear cookie
+        ResponseCookie clear = ResponseCookie.from(refreshCookieName, "")
+                .httpOnly(true)
+                .secure(refreshCookieSecure)
+                .sameSite("Lax")
+                .path("/api/auth/refresh")
+                .maxAge(Duration.ZERO)
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, clear.toString())
+                .body("Logged out.");
+
+    }
 }
