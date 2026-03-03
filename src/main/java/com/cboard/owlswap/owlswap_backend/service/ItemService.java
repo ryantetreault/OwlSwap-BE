@@ -21,6 +21,7 @@ import com.cboard.owlswap.owlswap_backend.model.Category;
 import com.cboard.owlswap.owlswap_backend.model.ItemImage;
 import com.cboard.owlswap.owlswap_backend.model.context.ItemMappingContext;
 import com.cboard.owlswap.owlswap_backend.security.CurrentUser;
+import com.cboard.owlswap.owlswap_backend.security.ItemAuthorizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -47,6 +48,8 @@ public class ItemService {
     CurrentUser currentUser;
     @Autowired
     ItemImageDao itemImageDao;
+    @Autowired
+    ItemAuthorizer itemAuthorizer;
     private final UserDao userDao;
     private final LocationDao locationDao;
     private final CategoryDao categoryDao;
@@ -171,15 +174,7 @@ public class ItemService {
         Item existing = dao.findById(dto.getItemId())
                 .orElseThrow( () -> new NotFoundException("Item not found, can not update."));
 
-        Integer currentUserId = currentUser.userId();
-        Integer ownerId = existing.getUser().getUserId();
-
-        if (!ownerId.equals(currentUserId)) {
-            throw new org.springframework.security.access.AccessDeniedException("You cannot update this item.");
-            // or throw your own ForbiddenException and handle -> 403 ApiError
-        }
-
-
+        itemAuthorizer.requireOwner(existing);
 
         try {
             Location location = locationDao.findById(dto.getLocationId())
@@ -223,13 +218,7 @@ public class ItemService {
             throw new NotFoundException("Item not found: " + itemId);
         }
 
-        Integer currentUserId = currentUser.userId();
-        Integer ownerId = item.getUser().getUserId();
-
-        if (!ownerId.equals(currentUserId)) {
-            throw new org.springframework.security.access.AccessDeniedException("You cannot delete this item.");
-            // or throw your own ForbiddenException and handle -> 403 ApiError
-        }
+        itemAuthorizer.requireOwner(item);
 
         //originally soft deleted but availability being used for sold or not, consider changing this later
         //item.setAvailable(false);
@@ -290,13 +279,7 @@ public class ItemService {
         if (existing == null)
             throw new NotFoundException("Item not found, can not updated. id=" + itemId);
 
-        Integer currentUserId = currentUser.userId();
-        Integer ownerId = existing.getUser().getUserId();
-
-        if (!ownerId.equals(currentUserId)) {
-            throw new org.springframework.security.access.AccessDeniedException("You cannot update this item.");
-            // or throw your own ForbiddenException and handle -> 403 ApiError
-        }
+        itemAuthorizer.requireOwner(existing);
 
         try {
             Location location = locationDao.findById(dto.getLocationId())
