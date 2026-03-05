@@ -5,7 +5,7 @@ import com.cboard.owlswap.owlswap_backend.model.orders.Order;
 import org.springframework.stereotype.Component;
 
 @Component
-public class OrderMapper
+public class OrderToDtoMapper
 {
     public OrderDto toDto(Order o) {
         OrderDto dto = new OrderDto();

@@ -1,59 +1,47 @@
 package com.cboard.owlswap.owlswap_backend.controller;
 
-import com.cboard.owlswap.owlswap_backend.model.Dto.TransactionDto;
-import com.cboard.owlswap.owlswap_backend.service.TransactionService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.web.PageableDefault;
+import com.cboard.owlswap.owlswap_backend.model.Dto.OrderDto;
+import com.cboard.owlswap.owlswap_backend.model.DtoMapping.OrderToDtoMapper;
+import com.cboard.owlswap.owlswap_backend.model.orders.CreateOrderRequest;
+import com.cboard.owlswap.owlswap_backend.model.orders.Order;
+import com.cboard.owlswap.owlswap_backend.service.OrderService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("order")
 public class OrderController
 {
-    @Autowired
-    TransactionService transactionService;
+    private final OrderService orderService;
+    private final OrderToDtoMapper mapper;
 
-    @GetMapping("all")
-    public ResponseEntity<List<TransactionDto>> getAllTransactions()
-    {
-        return ResponseEntity.ok(transactionService.getAllTransactions());
+    public OrderController(OrderService orderService, OrderToDtoMapper mapper) {
+        this.orderService = orderService;
+        this.mapper = mapper;
     }
 
-    @GetMapping("buyer/{id}/all")
-    public ResponseEntity<Page<TransactionDto>> getAllTransactionsByBuyer(@PathVariable("id") int buyerId,
-                                                                          @PageableDefault(size=6) Pageable pageable)
-    {
-        return ResponseEntity.ok(transactionService.getAllTransactionsByBuyer(buyerId, pageable));
+    @PostMapping
+    public ResponseEntity<OrderDto> create(@RequestBody @Valid CreateOrderRequest req) {
+        Order order = orderService.createOrderAndReserveItem(req.itemId());
+        return ResponseEntity.ok(mapper.toDto(order));
     }
 
-    @GetMapping("seller/{id}/all")
-    public ResponseEntity<Page<TransactionDto>> getAllTransactionsBySeller(@PathVariable("id") int sellerId,
-                                                                           @PageableDefault(size=6) Pageable pageable)
-    {
-        return ResponseEntity.ok(transactionService.getAllTransactionsBySeller(sellerId, pageable));
+    @PostMapping("/{orderId}/cancel")
+    public ResponseEntity<OrderDto> cancel(@PathVariable Integer orderId) {
+        return ResponseEntity.ok(mapper.toDto(orderService.cancelOrder(orderId)));
     }
 
-
-/*    @PostMapping("purchase/{itemId}/{buyerId}")
-    public ResponseEntity<String> purchaseItem(@PathVariable("itemId") int itemId,
-                                               @PathVariable("buyerId") int buyerId)
-    {
-        return transactionService.purchaseItem(itemId, buyerId);
-    }*/
-
-    @PostMapping("purchase/{itemId}")
-    public ResponseEntity<String> purchaseItem(@PathVariable("itemId") int itemId)
-    {
-        transactionService.purchaseItem(itemId);
-        return ResponseEntity.ok("Sale Successful!");
+    // TEMP for now (simulate payment)
+    @PostMapping("/{orderId}/pay")
+    public ResponseEntity<OrderDto> pay(@PathVariable Integer orderId) {
+        return ResponseEntity.ok(mapper.toDto(orderService.markPaid(orderId)));
     }
 
-
+    @PostMapping("/{orderId}/fulfill")
+    public ResponseEntity<OrderDto> fulfill(@PathVariable Integer orderId) {
+        return ResponseEntity.ok(mapper.toDto(orderService.fulfill(orderId)));
+    }
 
 
 }
