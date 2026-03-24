@@ -11,7 +11,7 @@ public class EmailVerificationToken {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long emailVerificationId;
+    private Long emailVerificationTokenId;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false)
@@ -37,8 +37,8 @@ public class EmailVerificationToken {
         return usedAt != null;
     }
 
-    public Long getEmailVerificationId() {
-        return emailVerificationId;
+    public Long getEmailVerificationTokenId() {
+        return emailVerificationTokenId;
     }
 
     public User getUser() {

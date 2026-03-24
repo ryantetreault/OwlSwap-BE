@@ -326,3 +326,26 @@ ALTER TABLE item
 CREATE INDEX idx_item_listing_status ON item(listing_status);
 CREATE INDEX idx_item_reserved_until ON item(reserved_until);
 
+
+ALTER TABLE user
+ADD COLUMN email_verified BIT(1) NOT NULL DEFAULT b'0';
+
+
+CREATE TABLE email_verification_tokens (
+    email_verification_token_id BIGINT NOT NULL AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    token_hash VARCHAR(128) NOT NULL,
+    expires_at DATETIME(6) NOT NULL,
+    used_at DATETIME(6) NULL,
+    created_at DATETIME(6) NOT NULL,
+    PRIMARY KEY (email_verification_token_id),
+    UNIQUE KEY uq_email_verification_token_hash (token_hash),
+    KEY idx_email_verification_user_id (user_id),
+    CONSTRAINT fk_email_verification_user
+        FOREIGN KEY (user_id) REFERENCES user(user_id)
+        ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+ALTER TABLE user
+ADD CONSTRAINT uq_user_email UNIQUE (email);

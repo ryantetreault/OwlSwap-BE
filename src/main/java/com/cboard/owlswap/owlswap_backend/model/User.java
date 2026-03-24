@@ -16,6 +16,7 @@ public class User
     private Integer userId;
     private String firstName;
     private String lastName;
+    @Column(nullable = false, unique = true)
     private String email;
     private String username;
     private String password;
@@ -32,7 +33,7 @@ public class User
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RefreshToken> refreshTokens = new ArrayList<>();
-    @Column(name = "email_verified, nullable = false")
+    @Column(name = "email_verified", nullable = false)
     private boolean emailVerified = false;
 
     public User() {

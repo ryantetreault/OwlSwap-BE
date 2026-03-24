@@ -74,6 +74,15 @@ public class AuthService {
             return ResponseEntity.badRequest().body("Email must be a Westfield student address.");
         }
 
+        if (userDao.findByUsername(request.getUsername()).isPresent()) {
+            return ResponseEntity.badRequest().body("Username already exists.");
+        }
+
+        if (userDao.findByEmail(request.getEmail()).isPresent()) {
+            return ResponseEntity.badRequest().body("Email already exists.");
+        }
+
+
         User user = new User();
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
