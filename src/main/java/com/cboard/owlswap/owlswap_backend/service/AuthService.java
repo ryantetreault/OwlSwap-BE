@@ -1,5 +1,6 @@
 package com.cboard.owlswap.owlswap_backend.service;
 
+import com.cboard.owlswap.owlswap_backend.dao.EmailVerificationDao;
 import com.cboard.owlswap.owlswap_backend.dao.RefreshTokenDao;
 import com.cboard.owlswap.owlswap_backend.model.Dto.AuthResponse;
 import com.cboard.owlswap.owlswap_backend.model.Dto.LoginRequest;
@@ -16,6 +17,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Optional;
+import com.cboard.owlswap.owlswap_backend.dao.EmailVerificationDao;
+import com.cboard.owlswap.owlswap_backend.security.EmailVerificationToken;
 
 import com.cboard.owlswap.owlswap_backend.security.RefreshToken;
 import com.cboard.owlswap.owlswap_backend.security.RefreshTokenUtil;
@@ -42,6 +45,11 @@ public class AuthService {
     @Autowired
     private JwtUtil jwtUtil;
     @Autowired private RefreshTokenDao refreshTokenDao;
+    @Autowired private EmailVerificationDao emailVerificationDao;
+    @Autowired private EmailService emailService;
+
+    @Value("${app.email-verification.exp-hours}")
+    private long emailVerificationExpHours;
 
     @Value("${app.refresh.cookie-name}") private String refreshCookieName;
     @Value("${app.refresh.exp-days}") private long refreshExpDays;
@@ -73,7 +81,25 @@ public class AuthService {
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
+        user.setEmailVerified(false);
+
         userDao.save(user);
+
+        String rawVerificationToken = RefreshTokenUtil.generateRawToken();
+        String verificationHash = RefreshTokenUtil.hash(rawVerificationToken);
+
+        EmailVerificationToken evt = new EmailVerificationToken();
+        evt.setUser(user);
+        evt.setTokenHash(verificationHash);
+        evt.setExpiresAt(Instant.now().plus(emailVerificationExpHours, ChronoUnit.HOURS));
+
+        emailVerificationDao.save(evt);
+
+        //For backend-direct verification, change later
+        String verifyUrl = "http://localhost:8080/api/auth/verify-email?token=" + rawVerificationToken;
+        emailService.sendVerificationEmail(user.getEmail(), verifyUrl);
+
+
         return ResponseEntity.ok("User registered successfully.");
     }
 
@@ -219,5 +245,66 @@ public class AuthService {
                 .header(HttpHeaders.SET_COOKIE, clear.toString())
                 .body("Logged out.");
 
+    }
+
+    public ResponseEntity<?> verifyEmail(String rawToken)
+    {
+        if (rawToken == null || rawToken.isBlank()) {
+            return ResponseEntity.badRequest().body("Missing verification token.");
+        }
+
+        String hash = RefreshTokenUtil.hash(rawToken);
+
+        EmailVerificationToken evt = emailVerificationDao.findByTokenHash(hash)
+                .orElse(null);
+
+        if (evt == null) {
+            return ResponseEntity.status(400).body("Invalid verification token.");
+        }
+
+        if (evt.isUsed()) {
+            return ResponseEntity.status(400).body("Verification token has already been used.");
+        }
+
+        if (evt.isExpired()) {
+            return ResponseEntity.status(400).body("Verification token has expired.");
+        }
+
+        User user = evt.getUser();
+        user.setEmailVerified(true);
+        userDao.save(user);
+
+        evt.setUsedAt(Instant.now());
+        emailVerificationDao.save(evt);
+
+        return ResponseEntity.ok("Email verified successfully.");
+
+    }
+
+    public ResponseEntity<?> resendVerification(String email)
+    {
+        User user = userDao.findByEmail(email).orElse(null);
+        if (user == null) {
+            return ResponseEntity.ok("If that email exists, a verification email has been sent.");
+        }
+
+        if (user.isEmailVerified()) {
+            return ResponseEntity.badRequest().body("Email is already verified.");
+        }
+
+        String rawVerificationToken = RefreshTokenUtil.generateRawToken();
+        String verificationHash = RefreshTokenUtil.hash(rawVerificationToken);
+
+        EmailVerificationToken evt = new EmailVerificationToken();
+        evt.setUser(user);
+        evt.setTokenHash(verificationHash);
+        evt.setExpiresAt(Instant.now().plus(emailVerificationExpHours, ChronoUnit.HOURS));
+
+        emailVerificationDao.save(evt);
+
+        String verifyUrl = "http://localhost:8080/api/auth/verify-email?token=" + rawVerificationToken;
+        emailService.sendVerificationEmail(user.getEmail(), verifyUrl);
+
+        return ResponseEntity.ok("Verification email re-sent.");
     }
 }

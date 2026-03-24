@@ -37,4 +37,16 @@ public class AuthController {
     {
         return authService.logout(request);
     }
+
+    @GetMapping("/verify-email")
+    public ResponseEntity<?> verifyEmail(@RequestParam String token)
+    {
+        return authService.verifyEmail(token);
+    }
+
+    @PostMapping("/resend-verification")
+    public ResponseEntity<?> resendVerification(@RequestParam String email)
+    {
+        return authService.resendVerification(email);
+    }
 }

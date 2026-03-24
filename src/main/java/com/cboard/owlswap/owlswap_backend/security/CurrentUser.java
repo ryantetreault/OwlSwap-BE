@@ -51,6 +51,11 @@ public class CurrentUser {
         return principal().getUsername();
     }
 
+    public boolean isEmailVerified()
+    {
+        return user().isEmailVerified();
+    }
+
     public User user() {
         Integer id = userId();
         return userDao.findById(id)

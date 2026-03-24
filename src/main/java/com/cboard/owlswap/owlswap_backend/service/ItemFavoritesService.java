@@ -83,6 +83,10 @@ public class ItemFavoritesService
     @Transactional
     public void addFavorite(int itemId)
     {
+        if (!currentUser.isEmailVerified()) {
+            throw new AccessDeniedException("Email verification required.");
+        }
+
         int userId = currentUser.userId();
         User user = userDao.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found. userId=" + userId));
@@ -110,6 +114,10 @@ public class ItemFavoritesService
 
     public void removeFavorite(int itemId)
     {
+        if (!currentUser.isEmailVerified()) {
+            throw new AccessDeniedException("Email verification required.");
+        }
+
         int userId = currentUser.userId();
         ItemFavoriteId id = new ItemFavoriteId(itemId, userId);
 
@@ -121,6 +129,10 @@ public class ItemFavoritesService
 
     public Boolean getIsFavorite(int itemId)
     {
+        if (!currentUser.isEmailVerified()) {
+            throw new AccessDeniedException("Email verification required.");
+        }
+
         int userId = currentUser.userId();
 
         return dao.existsByItemFavoriteId(new ItemFavoriteId(itemId, userId));

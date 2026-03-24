@@ -49,7 +49,12 @@ public class OrderService
     }
 
     @Transactional
-    public Order createOrderAndReserveItem(Integer itemId) {
+    public Order createOrderAndReserveItem(Integer itemId)
+    {
+        if (!currentUser.isEmailVerified()) {
+            throw new AccessDeniedException("Email verification required.");
+        }
+
         Integer buyerId = currentUser.userId();
         UserArchive buyer = userArchiveDao.findById(buyerId)
                 .orElseThrow(() -> new NotFoundException("Buyer not found."));
@@ -104,7 +109,12 @@ public class OrderService
 
 
     @Transactional
-    public Order cancelOrder(Integer orderId) {
+    public Order cancelOrder(Integer orderId)
+    {
+        if (!currentUser.isEmailVerified()) {
+            throw new AccessDeniedException("Email verification required.");
+        }
+
         Integer userId = currentUser.userId();
 
         Order order = orderDao.findById(orderId)
@@ -144,7 +154,12 @@ public class OrderService
     // TEMPORARY: do this now to test end-to-end without Stripe.
     // Later: Stripe webhook sets PAID.
     @Transactional
-    public Order markPaid(Integer orderId) {
+    public Order markPaid(Integer orderId)
+    {
+        if (!currentUser.isEmailVerified()) {
+            throw new AccessDeniedException("Email verification required.");
+        }
+
         Integer userId = currentUser.userId();
 
         Order order = orderDao.findById(orderId)
@@ -183,7 +198,12 @@ public class OrderService
 
 
     @Transactional
-    public Order fulfill(Integer orderId) {
+    public Order fulfill(Integer orderId)
+    {
+        if (!currentUser.isEmailVerified()) {
+            throw new AccessDeniedException("Email verification required.");
+        }
+
         Integer userId = currentUser.userId();
 
         Order order = orderDao.findById(orderId)
