@@ -7,7 +7,9 @@ import com.cboard.owlswap.owlswap_backend.exception.DtoMappingException;
 import com.cboard.owlswap.owlswap_backend.exception.NotAvailableException;
 import com.cboard.owlswap.owlswap_backend.exception.NotFoundException;
 import com.cboard.owlswap.owlswap_backend.model.*;
+import com.cboard.owlswap.owlswap_backend.model.Dto.OrderDto;
 import com.cboard.owlswap.owlswap_backend.model.Dto.TransactionDto;
+import com.cboard.owlswap.owlswap_backend.model.DtoMapping.OrderToDtoMapper;
 import com.cboard.owlswap.owlswap_backend.model.DtoMapping.TransactionMapper;
 import com.cboard.owlswap.owlswap_backend.model.orders.ListingStatus;
 import com.cboard.owlswap.owlswap_backend.model.orders.Order;
@@ -34,6 +36,7 @@ public class OrderService
     private final ItemDao itemDao;
     private final UserArchiveDao userArchiveDao;
     private final CurrentUser currentUser;
+    private final OrderToDtoMapper orderToDtoMapper;
 
     // how long we reserve an item before it expires
     private static final int RESERVATION_MINUTES = 1;
@@ -41,11 +44,13 @@ public class OrderService
     public OrderService(OrderDao orderDao,
                         ItemDao itemDao,
                         UserArchiveDao userArchiveDao,
-                        CurrentUser currentUser) {
+                        CurrentUser currentUser,
+                        OrderToDtoMapper orderToDtoMapper) {
         this.orderDao = orderDao;
         this.itemDao = itemDao;
         this.userArchiveDao = userArchiveDao;
         this.currentUser = currentUser;
+        this.orderToDtoMapper = orderToDtoMapper;
     }
 
     @Transactional
@@ -223,4 +228,57 @@ public class OrderService
     }
 
 
+    public List<OrderDto> getAllOrdersByBuyer(int buyerId)
+    {
+        List<Order> orders = orderDao.findByBuyer_UserIdOrderByCreatedAtDesc(buyerId);
+
+        return orders.stream()
+                .map(o -> {
+                    try
+                    {
+                        return orderToDtoMapper.toDto(o);
+                    }
+                    catch(Exception e)
+                    {
+                        throw new DtoMappingException("Failed to map Order to DTO. orderId=" + o.getOrderId(), e);
+                    }
+                })
+                .toList();
+    }
+
+    public List<OrderDto> getAllOrdersBySeller(int sellerId)
+    {
+        List<Order> orders = orderDao.findBySeller_UserIdOrderByCreatedAtDesc(sellerId);
+
+        return orders.stream()
+                .map(o -> {
+                    try
+                    {
+                        return orderToDtoMapper.toDto(o);
+                    }
+                    catch(Exception e)
+                    {
+                        throw new DtoMappingException("Failed to map Order to DTO. orderId=" + o.getOrderId(), e);
+                    }
+                })
+                .toList();
+    }
+
+    public List<OrderDto> getAllOrders()
+    {
+        List<Order> orders = orderDao.findAll();
+
+        return orders.stream()
+                .map(o -> {
+                    try
+                    {
+                        return orderToDtoMapper.toDto(o);
+                    }
+                    catch(Exception e)
+                    {
+                        throw new DtoMappingException("Failed to map Order to DTO. orderId=" + o.getOrderId(), e);
+                    }
+                })
+                .toList();
+    }
 }

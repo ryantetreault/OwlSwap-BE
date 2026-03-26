@@ -6,8 +6,11 @@ import com.cboard.owlswap.owlswap_backend.model.orders.CreateOrderRequest;
 import com.cboard.owlswap.owlswap_backend.model.orders.Order;
 import com.cboard.owlswap.owlswap_backend.service.OrderService;
 import jakarta.validation.Valid;
+import org.apache.catalina.connector.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("order")
@@ -41,6 +44,24 @@ public class OrderController
     @PostMapping("/{orderId}/fulfill")
     public ResponseEntity<OrderDto> fulfill(@PathVariable Integer orderId) {
         return ResponseEntity.ok(mapper.toDto(orderService.fulfill(orderId)));
+    }
+
+    @GetMapping("/buyer/{buyerId}")
+    public ResponseEntity<List<OrderDto>> getAllOrdersByBuyer(@PathVariable("buyerId") int buyerId)
+    {
+        return ResponseEntity.ok(orderService.getAllOrdersByBuyer(buyerId));
+    }
+
+    @GetMapping("/seller/{sellerId}")
+    public ResponseEntity<List<OrderDto>> getAllOrdersBySeller(@PathVariable("sellerId") int sellerId)
+    {
+        return ResponseEntity.ok(orderService.getAllOrdersBySeller(sellerId));
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<OrderDto>> getAllOrders()
+    {
+        return ResponseEntity.ok(orderService.getAllOrders());
     }
 
 
